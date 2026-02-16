@@ -1,0 +1,297 @@
+const navLinks = document.getElementById('nav-links');
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const closeMenuBtn = document.getElementById('close-menu-btn');
+
+mobileMenuBtn.addEventListener('click', () => {
+    navLinks.classList.add('active');
+});
+
+closeMenuBtn.addEventListener('click', () => {
+    navLinks.classList.remove('active');
+});
+
+document.addEventListener('click', (e) => {
+    if (!navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+        navLinks.classList.remove('active');
+    }
+});
+
+
+// =================Hero Slider Funtionality==============
+
+document.addEventListener('DOMContentLoaded', () => {
+    const intervalTime = 4000;
+    const track = document.getElementById('slidesTrack');
+    const slides = Array.from(track.children);
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const indicatorsContainer = document.getElementById('indicators');
+
+    let currentIndex = 0;
+    let slideInterval;
+
+    slides.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (index === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goToSlide(index));
+        indicatorsContainer.appendChild(dot);
+    });
+
+    const dots = Array.from(indicatorsContainer.children);
+
+    function goToSlide(index) {
+        if (index < 0) currentIndex = slides.length - 1;
+        else if (index >= slides.length) currentIndex = 0;
+        else currentIndex = index;
+
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentIndex);
+        });
+
+        startAutoPlay();
+    }
+
+    function startAutoPlay() {
+        clearInterval(slideInterval);
+        slideInterval = setInterval(() => {
+            goToSlide(currentIndex + 1);
+        }, intervalTime);
+    }
+
+
+    nextBtn.addEventListener('click', () => goToSlide(currentIndex + 1));
+    prevBtn.addEventListener('click', () => goToSlide(currentIndex - 1));
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') goToSlide(currentIndex - 1);
+        if (e.key === 'ArrowRight') goToSlide(currentIndex + 1);
+    });
+
+    startAutoPlay();
+});
+
+
+// ===================why shop us animation===========
+document.addEventListener('DOMContentLoaded', () => {
+
+    const observerOptions = {
+        threshold: 0.15,
+        rootMargin: "0px 0px -50px 0px"
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    const header = document.querySelectorAll('.section-header');
+    const cards = document.querySelectorAll('.feature-card');
+
+    header.forEach(header => observer.observe(header));
+    cards.forEach(card => observer.observe(card));
+});
+
+// ====================== Product Slider Start ===============================
+
+const allSliders = document.querySelectorAll('.slider-container');
+
+allSliders.forEach(container => {
+    const sliderWrapper = container.querySelector('.slider-track-wrapper');
+    const prevBtn = container.querySelector('.nav-btn.prev');
+    const nextBtn = container.querySelector('.nav-btn.next');
+
+    const scrollAmount = 280;
+
+    if (sliderWrapper && nextBtn && prevBtn) {
+
+        nextBtn.addEventListener('click', () => {
+            sliderWrapper.scrollBy({
+                left: scrollAmount,
+                behavior: 'smooth'
+            });
+        });
+
+        prevBtn.addEventListener('click', () => {
+            sliderWrapper.scrollBy({
+                left: -scrollAmount,
+                behavior: 'smooth'
+            });
+        });
+    }
+});
+
+// ===============Toast and Wishlist start==================
+function toggleWishlist(btn) {
+    btn.classList.toggle('active');
+    if (btn.classList.contains('active')) {
+        showToast('Added to Wishlist', 'heart');
+    } else {
+        showToast('Removed from Wishlist', 'trash');
+    }
+}
+
+function addToCart(productName) {
+    showToast(`Added <strong>${productName}</strong> to cart!`, 'cart');
+}
+
+function showToast(message, iconType) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+
+    let iconSvg = '';
+    if (iconType === 'cart') {
+        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #333;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>`;
+    } else if (iconType === 'heart') {
+        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e63946" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`;
+    } else {
+        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+    }
+
+    toast.innerHTML = `${iconSvg} <span>${message}</span>`;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('hide');
+        toast.addEventListener('animationend', () => {
+            toast.remove();
+        });
+    }, 3000);
+}
+
+
+
+
+// ================= CART FUNCTIONALITY =================
+
+let cart = JSON.parse(localStorage.getItem('SHOPPING_CART')) || [];
+
+const cartIcon = document.querySelector('.cart-icon-wrapper');
+const cartSidebar = document.getElementById('cartSidebar');
+const cartOverlay = document.getElementById('cartOverlay');
+const closeCartBtn = document.getElementById('closeCartBtn');
+const cartItemsContainer = document.getElementById('cartItemsContainer');
+const cartTotalAmount = document.getElementById('cartTotalAmount');
+const cartBadge = document.querySelector('.cart-badge');
+
+function toggleCart() {
+    cartSidebar.classList.toggle('active');
+    cartOverlay.classList.toggle('active');
+}
+
+cartIcon.addEventListener('click', toggleCart);
+closeCartBtn.addEventListener('click', toggleCart);
+cartOverlay.addEventListener('click', toggleCart);
+
+function addToCart(btnElement) {
+
+    const productCard = btnElement.closest('.product-card');
+
+    const title = productCard.querySelector('.product-title').innerText;
+    const priceText = productCard.querySelector('.current-price').innerText;
+    const imageSrc = productCard.querySelector('.card-image').src;
+
+    const codeElement = productCard.querySelector('.product-category');
+    const productCode = codeElement ? codeElement.innerText : 'N/A';
+
+    const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
+
+    const existingItem = cart.find(item => item.title === title);
+
+    if (existingItem) {
+        existingItem.quantity += 1;
+        showToast(`Increased quantity of <strong>${title}</strong>`, 'cart');
+    } else {
+        const newItem = {
+            title,
+            price,
+            image: imageSrc,
+            code: productCode,
+            quantity: 1
+        };
+        cart.push(newItem);
+        showToast(`Added <strong>${title}</strong> to cart!`, 'cart');
+    }
+
+    updateCart();
+    // Optional: Open cart immediately when added
+    // if(!cartSidebar.classList.contains('active')) toggleCart();
+}
+
+function removeFromCart(title) {
+    cart = cart.filter(item => item.title !== title);
+    updateCart();
+    showToast('Item removed', 'trash');
+}
+
+function changeQuantity(title, change) {
+    const item = cart.find(i => i.title === title);
+    if (item) {
+        item.quantity += change;
+        if (item.quantity <= 0) {
+            removeFromCart(title);
+            return;
+        }
+    }
+    updateCart();
+}
+
+function updateCart() {
+    localStorage.setItem('SHOPPING_CART', JSON.stringify(cart));
+
+    const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+    cartBadge.innerText = totalItems;
+
+    cartItemsContainer.innerHTML = '';
+    let totalPrice = 0;
+
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '<div class="empty-cart-msg">Your cart is currently empty.</div>';
+    } else {
+        cart.forEach(item => {
+            totalPrice += item.price * item.quantity;
+
+            const cartItemEl = document.createElement('div');
+            cartItemEl.classList.add('cart-item');
+            cartItemEl.innerHTML = `
+                <img src="${item.image}" alt="${item.title}">
+                <div class="cart-item-details">
+                    <div class="cart-item-title">${item.title}</div>
+                    <div class="cart-item-price">৳${item.price}</div>
+                    <div class="cart-item-quantity">
+                        <button class="qty-btn" onclick="changeQuantity('${item.title}', -1)">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="qty-btn" onclick="changeQuantity('${item.title}', 1)">+</button>
+                    </div>
+                </div>
+                <div class="remove-btn" onclick="removeFromCart('${item.title}')">
+                    <i class="fa-solid fa-trash"></i>
+                </div>
+            `;
+            cartItemsContainer.appendChild(cartItemEl);
+        });
+    }
+
+    cartTotalAmount.innerText = '৳' + totalPrice.toFixed(2);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateCart();
+});
+
+document.querySelector('.checkout-btn').addEventListener('click', () => {
+    if (cart.length === 0) {
+        showToast("Your cart is empty!", "cart");
+        return;
+    }
+    window.location.href = '/checkout';
+});
+
