@@ -62,13 +62,6 @@ form.addEventListener('submit', async (e) => {
         paymentMethod: paymentMethod,
         transactionId: paymentMethod === 'bkash' ? trxId : null
     };
-    // 1. Gather Data
-    // const customerData = {
-    //     name: document.getElementById('custName').value,
-    //     email: document.getElementById('custEmail').value,
-    //     phone: document.getElementById('custPhone').value,
-    //     address: document.getElementById('custAddress').value
-    // };
 
     const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const total = subtotal + SHIPPING_COST;
