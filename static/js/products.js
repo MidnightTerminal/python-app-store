@@ -27,7 +27,7 @@ async function loadProducts() {
                 rating: item.rating,
                 review: item.reviews_count,
                 badge: finalBadge,
-                isFeatured: item.is_featured // <--- Add this property from DB
+                isFeatured: item.is_featured 
             };
         });
 

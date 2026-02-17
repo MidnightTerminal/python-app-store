@@ -11,7 +11,6 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# --- Database Connection ---
 def get_db_connection():
     return mysql.connector.connect(
         host=os.getenv('DB_HOST'),
@@ -20,7 +19,7 @@ def get_db_connection():
         database=os.getenv('DB_NAME')
     )
 
-# --- Email Function ---
+
 def send_email(to_email, subject, html_content):
     try:
         smtp_host = os.getenv('SMTP_HOST')
@@ -42,7 +41,7 @@ def send_email(to_email, subject, html_content):
     except Exception as e:
         print(f"Failed to send email: {e}")
 
-# --- Routes ---
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -61,9 +60,8 @@ def get_all_products():
     connection = None
     try:
         connection = get_db_connection()
-        cursor = connection.cursor(dictionary=True) # Returns rows as dictionaries
-        
-        # Query to fetch all products
+        cursor = connection.cursor(dictionary=True)
+
         cursor.execute("SELECT * FROM products")
         products = cursor.fetchall()
         
@@ -76,7 +74,7 @@ def get_all_products():
             cursor.close()
             connection.close()
 
-# --- CHECKOUT API ---
+
 @app.route('/api/checkout', methods=['POST'])
 def checkout_api():
     connection = None
@@ -90,21 +88,18 @@ def checkout_api():
             return jsonify({'success': False, 'message': 'Missing order data'}), 400
 
         order_ref = f"ORD-{int(time.time() * 1000)}"
-        
-        # Determine Transaction ID text for emails
+
         trx_id = customer.get('transactionId')
         trx_display = ""
         if trx_id and trx_id.strip():
             trx_display = f"(TrxID: {trx_id})"
         else:
-            trx_id = None # Set to None for DB insertion
+            trx_id = None 
 
-        # --- DATABASE OPERATIONS ---
         connection = get_db_connection()
         cursor = connection.cursor()
         connection.start_transaction()
 
-        # 1. Insert Order
         sql_order = """
             INSERT INTO orders 
             (order_ref, customer_name, customer_email, customer_phone, customer_address, payment_method, transaction_id, total_amount) 
@@ -116,7 +111,6 @@ def checkout_api():
         )
         cursor.execute(sql_order, val_order)
 
-        # 2. Insert Items
         sql_item = """
             INSERT INTO order_items (order_ref, product_title, quantity, price) 
             VALUES (%s, %s, %s, %s)
@@ -126,9 +120,7 @@ def checkout_api():
 
         connection.commit()
 
-        # --- GENERATE EMAIL HTML (Exact Replica) ---
 
-        # 1. Build Customer Table Rows
         customer_rows = ""
         for item in cart:
             customer_rows += f"""
@@ -141,10 +133,8 @@ def checkout_api():
                 </tr>
             """
 
-        # 2. Build Admin Table Rows (With Code Logic)
         admin_rows = ""
         for item in cart:
-            # Logic: pCode = item.code || item.product_code || 'N/A'
             p_code = item.get('code') or item.get('product_code') or 'N/A'
             admin_rows += f"""
                 <tr>
@@ -157,7 +147,6 @@ def checkout_api():
                 </tr>
             """
 
-        # 3. Customer Email Template
         customer_email_html = f"""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
             <div style="background-color: #4CAF50; padding: 20px; text-align: center; color: white;">
@@ -202,7 +191,6 @@ def checkout_api():
         </div>
         """
 
-        # 4. Admin Email Template
         admin_email_html = f"""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #333;">
             <div style="background-color: #333; padding: 15px; text-align: center; color: white;">
@@ -239,7 +227,7 @@ def checkout_api():
         </div>
         """
 
-        # --- SEND EMAILS ---
+        
         send_email(customer['email'], f"Order Confirmation - {order_ref}", customer_email_html)
         send_email(os.getenv('EMAIL_USER'), f"🔔 New Order: {order_ref} - ৳{total}", admin_email_html)
 
@@ -257,20 +245,17 @@ def checkout_api():
             connection.close()
 
 
+app.secret_key = os.getenv('ADMIN_SECRET_KEY')
 
-# Set a secret key for security (Required for sessions)
-app.secret_key = 'your_very_secret_admin_key' 
 
-# Mapping category to folder path
 CATEGORY_FOLDERS = {
-    'bag': 'ladies bag',
+    'bag': 'ladies-bag',
     'sneaker': 'sneaker',
-    'kids-item': 'kids item',
-    'ladies-item': 'ladies item',
+    'kids-item': 'kids-item',
+    'ladies-item': 'ladies-item',
     'gadgets-accessories': 'gadgets'
 }
 
-# --- ADMIN SECURITY ---
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD =  os.getenv('ADMIN_PASSWORD')
 
@@ -313,7 +298,7 @@ def admin_logout():
     session.pop('admin_logged_in', None)
     return redirect(url_for('admin_login'))
 
-# --- ADD PRODUCT UI ---
+
 @app.route('/admin/add-product', methods=['GET', 'POST'])
 def add_product_ui():
     if not session.get('admin_logged_in'):
@@ -322,7 +307,6 @@ def add_product_ui():
     if request.method == 'POST':
         connection = None
         try:
-            # Removed p_id = request.form['id']
             code = request.form['code']
             category = request.form['category']
             title = request.form['title']
@@ -341,7 +325,6 @@ def add_product_ui():
             connection = get_db_connection()
             cursor = connection.cursor()
             
-            # Removed id from the INSERT columns and the %s values
             sql = """
                 INSERT INTO products (code, category, title, price, old_price, image_url, rating, reviews_count, badge_text, badge_class, is_featured)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -360,7 +343,6 @@ def add_product_ui():
 
 
 
-# --- UPDATE PRODUCT UI ---
 @app.route('/admin/edit-product/<int:product_id>', methods=['GET', 'POST'])
 def edit_product_ui(product_id):
     if not session.get('admin_logged_in'):
@@ -371,7 +353,6 @@ def edit_product_ui(product_id):
 
     if request.method == 'POST':
         try:
-            # Gather updated data
             code = request.form['code']
             category = request.form['category']
             title = request.form['title']
@@ -404,7 +385,6 @@ def edit_product_ui(product_id):
         finally:
             connection.close()
 
-    # GET request: Fetch current data to fill the form
     cursor.execute("SELECT * FROM products WHERE id = %s", (product_id,))
     product = cursor.fetchone()
     connection.close()
@@ -414,7 +394,6 @@ def edit_product_ui(product_id):
 
     return render_template('edit_product.html', product=product)
 
-# --- PRODUCT LIST UI (To select which one to edit) ---
 @app.route('/admin/manage-products')
 def manage_products():
     if not session.get('admin_logged_in'):
@@ -427,9 +406,6 @@ def manage_products():
     connection.close()
     
     return render_template('manage_products.html', products=products)
-
-
-
 
 
 if __name__ == '__main__':
