@@ -61,7 +61,7 @@ const renderCategory = (targetType, containerId) => {
 
         htmlContent += `
           <article class="product-card">
-              <div class="card-image-wrapper">
+              <div class="card-image-wrapper" onclick="openProductModal(this)">
                   ${badgeHtml}
                   <img src="${product.image}" alt="${product.title}" class="card-image">
               </div>

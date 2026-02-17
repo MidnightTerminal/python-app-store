@@ -6,6 +6,7 @@ from email.mime.multipart import MIMEMultipart
 import os
 import time
 from dotenv import load_dotenv
+import requests
 
 load_dotenv()
 
@@ -40,6 +41,35 @@ def send_email(to_email, subject, html_content):
             print(f"Email sent to {to_email}")
     except Exception as e:
         print(f"Failed to send email: {e}")
+
+
+def send_telegram_notification(message):
+    try:
+        bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
+        chat_id = os.getenv('TELEGRAM_ADMIN_ID')
+        
+        if not bot_token or not chat_id:
+            print("Telegram credentials missing in .env")
+            return
+
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        payload = {
+            'chat_id': chat_id,
+            'text': message,
+            'parse_mode': 'HTML' # Allows bolding and basic formatting
+        }
+        
+        response = requests.post(url, json=payload)
+        
+        if response.status_code == 200:
+            print("Telegram notification sent successfully")
+        else:
+            print(f"Failed to send Telegram notification: {response.text}")
+            
+    except Exception as e:
+        print(f"Error sending Telegram message: {e}")
+
+
 
 
 @app.route('/')
@@ -227,9 +257,35 @@ def checkout_api():
         </div>
         """
 
+
+
+
+        items_list_text = ""
+        for item in cart:
+            p_code = item.get('code') or item.get('product_code') or 'N/A'
+            items_list_text += f"▫️ <b>{item['title']}</b> (Code: {p_code})\n   Qty: {item['quantity']} | Price: ৳{item['price']}\n"
+
+        telegram_msg = f"""
+🚨 <b>NEW ORDER RECEIVED!</b>
+
+<b>Ref:</b> {order_ref}
+<b>Total:</b> ৳{total}
+
+👤 <b>Customer Details:</b>
+Name: {customer['name']}
+Phone: {customer['phone']}
+Address: {customer['address']}
+Payment: {customer['paymentMethod']} {trx_display}
+
+🛒 <b>Order Items:</b>
+{items_list_text}
+"""
+
         
         send_email(customer['email'], f"Order Confirmation - {order_ref}", customer_email_html)
         send_email(os.getenv('EMAIL_USER'), f"🔔 New Order: {order_ref} - ৳{total}", admin_email_html)
+
+        send_telegram_notification(telegram_msg)
 
         return jsonify({'success': True, 'orderId': order_ref})
 
