@@ -266,7 +266,7 @@ def checkout_api():
             items_list_text += f"▫️ <b>{item['title']}</b> (Code: {p_code})\n   Qty: {item['quantity']} | Price: ৳{item['price']}\n"
 
         telegram_msg = f"""
-🚨 <b>NEW ORDER RECEIVED!</b>
+🛎️ <b>NEW ORDER RECEIVED!</b>
 
 <b>Ref:</b> {order_ref}
 <b>Total:</b> ৳{total}
@@ -284,7 +284,6 @@ Payment: {customer['paymentMethod']} {trx_display}
         
         send_email(customer['email'], f"Order Confirmation - {order_ref}", customer_email_html)
         send_email(os.getenv('EMAIL_USER'), f"🔔 New Order: {order_ref} - ৳{total}", admin_email_html)
-
         send_telegram_notification(telegram_msg)
 
         return jsonify({'success': True, 'orderId': order_ref})
