@@ -82,7 +82,10 @@ def shop():
 
 @app.route('/checkout')
 def checkout():
-    shipping_cost = os.getenv('SHIPPING_COST', 120)
+    try:
+        shipping_cost = int(os.getenv('SHIPPING_COST', '120'))
+    except ValueError:
+        shipping_cost = 120
     return render_template('checkout.html', shipping_cost=shipping_cost)
 
 

@@ -2,7 +2,6 @@ let allProducts = [];
 
 async function loadProducts() {
     try {
-        // 1. Fetch from the actual database API
         const response = await fetch('/api/products');
         const data = await response.json();
 
@@ -31,7 +30,6 @@ async function loadProducts() {
             };
         });
 
-        // 2. Render categories (Filtering for Homepage logic happens here)
         renderCategory('bag', 'bags-container');
         renderCategory('sneaker', 'sneakers-container');
         renderCategory('ladies-item', 'ladies-item-container');
@@ -43,12 +41,10 @@ async function loadProducts() {
     }
 }
 
-// 3. UPDATED RENDER FUNCTION WITH IS_FEATURED CHECK
 const renderCategory = (targetType, containerId) => {
     const container = document.getElementById(containerId);
     if (!container) return; 
 
-    // FILTER LOGIC: Must match the category AND must be featured (isFeatured === 1)
     const filteredProducts = allProducts.filter(product => 
         product.type === targetType && product.isFeatured === 1
     );
