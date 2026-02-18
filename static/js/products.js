@@ -22,7 +22,7 @@ async function loadProducts() {
                 type: item.category, 
                 title: item.title,
                 price: `৳${item.price}`,
-                oldPrice: item.old_price ? `৳${item.old_price}` : null,
+                oldPrice: item.old_price ? `${item.old_price}` : null,
                 image: item.image_url,
                 rating: item.rating,
                 review: item.reviews_count,
