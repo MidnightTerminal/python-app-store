@@ -82,7 +82,8 @@ def shop():
 
 @app.route('/checkout')
 def checkout():
-    return render_template('checkout.html')
+    shipping_cost = os.getenv('SHIPPING_COST', 120)
+    return render_template('checkout.html', shipping_cost=shipping_cost)
 
 
 @app.route('/api/products', methods=['GET'])
@@ -112,10 +113,54 @@ def checkout_api():
         data = request.get_json()
         customer = data.get('customer')
         cart = data.get('cart')
-        total = data.get('total')
 
         if not customer or not cart:
             return jsonify({'success': False, 'message': 'Missing order data'}), 400
+        
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cart_product_ids = [item.get('id') for item in cart]
+        
+        if not cart_product_ids:
+             return jsonify({'success': False, 'message': 'Cart is empty or missing Product IDs'}), 400
+
+        format_strings = ','.join(['%s'] * len(cart_product_ids))
+        cursor.execute(f"SELECT * FROM products WHERE id IN ({format_strings})", tuple(cart_product_ids))
+        db_products = cursor.fetchall()
+
+        product_map = {p['id']: p for p in db_products}
+
+        calculated_total = 0
+        validated_cart_items = []
+        SHIPPING_COST = os.getenv('SHIPPING_COST') 
+
+        for item in cart:
+            p_id = item.get('id')
+            qty = int(item.get('quantity', 0))
+
+            if qty < 1:
+                continue 
+
+            if p_id in product_map:
+                real_price = product_map[p_id]['price']
+                real_title = product_map[p_id]['title'] 
+                real_code = product_map[p_id]['code']
+                
+                line_total = real_price * qty
+                calculated_total += line_total
+
+                validated_cart_items.append({
+                    'title': real_title,
+                    'quantity': qty,
+                    'price': real_price,
+                    'code': real_code
+                })
+            else:
+                return jsonify({'success': False, 'message': f'Invalid product ID: {p_id}'}), 400
+
+        final_total = calculated_total + SHIPPING_COST
+        
 
         order_ref = f"ORD-{int(time.time() * 1000)}"
 
@@ -126,8 +171,6 @@ def checkout_api():
         else:
             trx_id = None 
 
-        connection = get_db_connection()
-        cursor = connection.cursor()
         connection.start_transaction()
 
         sql_order = """
@@ -137,7 +180,7 @@ def checkout_api():
         """
         val_order = (
             order_ref, customer['name'], customer['email'], customer['phone'], 
-            customer['address'], customer['paymentMethod'], trx_id, total
+            customer['address'], customer['paymentMethod'], trx_id, final_total
         )
         cursor.execute(sql_order, val_order)
 
@@ -145,14 +188,14 @@ def checkout_api():
             INSERT INTO order_items (order_ref, product_title, quantity, price) 
             VALUES (%s, %s, %s, %s)
         """
-        for item in cart:
+        for item in validated_cart_items:
             cursor.execute(sql_item, (order_ref, item['title'], item['quantity'], item['price']))
 
         connection.commit()
 
 
         customer_rows = ""
-        for item in cart:
+        for item in validated_cart_items:
             customer_rows += f"""
                 <tr>
                     <td style="padding: 10px; border-bottom: 1px solid #eee;">
@@ -164,7 +207,7 @@ def checkout_api():
             """
 
         admin_rows = ""
-        for item in cart:
+        for item in validated_cart_items:
             p_code = item.get('code') or item.get('product_code') or 'N/A'
             admin_rows += f"""
                 <tr>
@@ -209,7 +252,7 @@ def checkout_api():
                 </table>
 
                 <div style="text-align: right; margin-top: 20px;">
-                    <p style="font-size: 18px; margin: 5px 0;"><strong>Total Amount:</strong> <span style="color: #4CAF50;">৳{total}</span></p>
+                    <p style="font-size: 18px; margin: 5px 0;"><strong>Total Amount:</strong> <span style="color: #4CAF50;">৳{final_total}</span></p>
                 </div>
                 
                 <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
@@ -251,7 +294,7 @@ def checkout_api():
                 </table>
 
                 <div style="text-align: right; margin-top: 15px;">
-                    <h3>Total: ৳{total}</h3>
+                    <h3>Total: ৳{final_total}</h3>
                 </div>
             </div>
         </div>
@@ -269,7 +312,7 @@ def checkout_api():
 🛎️ <b>NEW ORDER RECEIVED!</b>
 
 <b>Ref:</b> {order_ref}
-<b>Total:</b> ৳{total}
+<b>Total:</b> ৳{final_total}
 
 👤 <b>Customer Details:</b>
 Name: {customer['name']}
@@ -283,7 +326,7 @@ Payment: {customer['paymentMethod']} {trx_display}
 
         
         send_email(customer['email'], f"Order Confirmation - {order_ref}", customer_email_html)
-        send_email(os.getenv('EMAIL_USER'), f"🔔 New Order: {order_ref} - ৳{total}", admin_email_html)
+        send_email(os.getenv('EMAIL_USER'), f"🔔 New Order: {order_ref} - ৳{final_total}", admin_email_html)
         send_telegram_notification(telegram_msg)
 
         return jsonify({'success': True, 'orderId': order_ref})

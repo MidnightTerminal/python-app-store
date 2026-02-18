@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const form = document.getElementById('checkoutForm');
 const successModal = document.getElementById('successModal');
 let cart = JSON.parse(localStorage.getItem('SHOPPING_CART')) || [];
-const SHIPPING_COST = 120;
+const SHIPPING_COST = parseInt(document.body.getAttribute('data-shipping-cost'));
 
 function loadCheckoutCart() {
     const container = document.getElementById('summaryItems');
@@ -77,8 +77,6 @@ form.addEventListener('submit', async (e) => {
             })
         });
 
-
-        // Check if response is okay, if not, throw an error with the status text
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`Server Error ${response.status}: ${errorText}`);

@@ -171,7 +171,6 @@ function showToast(message, iconType) {
 
 
 // ================= CART FUNCTIONALITY =================
-
 let cart = JSON.parse(localStorage.getItem('SHOPPING_CART')) || [];
 
 const cartIcon = document.querySelector('.cart-icon-wrapper');
@@ -194,23 +193,26 @@ cartOverlay.addEventListener('click', toggleCart);
 function addToCart(btnElement) {
 
     const productCard = btnElement.closest('.product-card');
-
+    const id = productCard.getAttribute('data-id');
+    
     const title = productCard.querySelector('.product-title').innerText;
     const priceText = productCard.querySelector('.current-price').innerText;
     const imageSrc = productCard.querySelector('.card-image').src;
-
-    const codeElement = productCard.querySelector('.product-category');
+    
+const codeElement = productCard.querySelector('.product-category');
     const productCode = codeElement ? codeElement.innerText : 'N/A';
 
     const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
 
-    const existingItem = cart.find(item => item.title === title);
+    const existingItem = cart.find(item => item.id === id || item.title === title);
 
     if (existingItem) {
         existingItem.quantity += 1;
+        if (!existingItem.id) existingItem.id = id;
         showToast(`Increased quantity of <strong>${title}</strong>`, 'cart');
     } else {
         const newItem = {
+            id: id,
             title,
             price,
             image: imageSrc,

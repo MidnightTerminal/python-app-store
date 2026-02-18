@@ -49,7 +49,7 @@ const renderMixedGrid = () => {
         const stars = "★".repeat(product.rating) + "☆".repeat(5 - product.rating);
 
         html += `
-          <article class="product-card" data-category="${product.category}">
+          <article class="product-card" data-category="${product.category}" data-id="${product.id}">
               <div class="card-image-wrapper" onclick="openProductModal(this)">
                   ${badgeHtml}
                   <button class="wishlist-btn" onclick="toggleWishlist(this)" aria-label="Add to Wishlist">

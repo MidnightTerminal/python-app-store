@@ -22,7 +22,7 @@ async function loadProducts() {
                 type: item.category, 
                 title: item.title,
                 price: `৳${item.price}`,
-                oldPrice: item.old_price ? `${item.old_price}` : null,
+                oldPrice: item.old_price ? `৳${item.old_price}` : null,
                 image: item.image_url,
                 rating: item.rating,
                 review: item.reviews_count,
@@ -60,7 +60,7 @@ const renderCategory = (targetType, containerId) => {
         const oldPriceHtml = product.oldPrice ? `<span class="old-price">${product.oldPrice}</span>` : '';
 
         htmlContent += `
-          <article class="product-card">
+          <article class="product-card" data-id="${product.id}">
               <div class="card-image-wrapper" onclick="openProductModal(this)">
                   ${badgeHtml}
                   <img src="${product.image}" alt="${product.title}" class="card-image">
