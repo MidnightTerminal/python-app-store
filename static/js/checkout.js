@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const form = document.getElementById('checkoutForm');
 const successModal = document.getElementById('successModal');
 let cart = JSON.parse(localStorage.getItem('SHOPPING_CART')) || [];
-const SHIPPING_COST = parseInt(document.body.getAttribute('data-shipping-cost'));
+const SHIPPING_COST = parseInt(document.body.getAttribute('data-shipping-cost')) || 120;
 
 function loadCheckoutCart() {
     const container = document.getElementById('summaryItems');

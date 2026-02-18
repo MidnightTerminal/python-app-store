@@ -191,15 +191,14 @@ closeCartBtn.addEventListener('click', toggleCart);
 cartOverlay.addEventListener('click', toggleCart);
 
 function addToCart(btnElement) {
-
     const productCard = btnElement.closest('.product-card');
-    const id = productCard.getAttribute('data-id');
+    const id = parseInt(productCard.getAttribute('data-id'));
     
     const title = productCard.querySelector('.product-title').innerText;
     const priceText = productCard.querySelector('.current-price').innerText;
     const imageSrc = productCard.querySelector('.card-image').src;
     
-const codeElement = productCard.querySelector('.product-category');
+    const codeElement = productCard.querySelector('.product-category');
     const productCode = codeElement ? codeElement.innerText : 'N/A';
 
     const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));

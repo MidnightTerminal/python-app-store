@@ -120,13 +120,17 @@ def checkout_api():
         if not customer or not cart:
             return jsonify({'success': False, 'message': 'Missing order data'}), 400
         
-        connection = get_db_connection()
-        cursor = connection.cursor(dictionary=True)
+        try:
+            cart_product_ids = [int(item.get('id')) for item in cart if item.get('id') is not None]
+        except ValueError:
+            return jsonify({'success': False, 'message': 'Invalid Product ID format (must be numeric)'}), 400
 
-        cart_product_ids = [item.get('id') for item in cart]
-        
         if not cart_product_ids:
              return jsonify({'success': False, 'message': 'Cart is empty or missing Product IDs'}), 400
+
+
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
 
         format_strings = ','.join(['%s'] * len(cart_product_ids))
         cursor.execute(f"SELECT * FROM products WHERE id IN ({format_strings})", tuple(cart_product_ids))
@@ -136,10 +140,18 @@ def checkout_api():
 
         calculated_total = 0
         validated_cart_items = []
-        SHIPPING_COST = os.getenv('SHIPPING_COST') 
+        
+
+        try:
+            SHIPPING_COST = int(os.getenv('SHIPPING_COST', '120'))
+        except ValueError:
+            SHIPPING_COST = 120
 
         for item in cart:
-            p_id = item.get('id')
+            try:
+                p_id = int(item.get('id'))
+            except (ValueError, TypeError):
+                return jsonify({'success': False, 'message': f'Invalid ID format: {item.get("id")}'}), 400
             qty = int(item.get('quantity', 0))
 
             if qty < 1:
@@ -163,8 +175,6 @@ def checkout_api():
                 return jsonify({'success': False, 'message': f'Invalid product ID: {p_id}'}), 400
 
         final_total = calculated_total + SHIPPING_COST
-        
-
         order_ref = f"ORD-{int(time.time() * 1000)}"
 
         trx_id = customer.get('transactionId')
@@ -173,8 +183,6 @@ def checkout_api():
             trx_display = f"(TrxID: {trx_id})"
         else:
             trx_id = None 
-
-        connection.start_transaction()
 
         sql_order = """
             INSERT INTO orders 
@@ -195,7 +203,6 @@ def checkout_api():
             cursor.execute(sql_item, (order_ref, item['title'], item['quantity'], item['price']))
 
         connection.commit()
-
 
         customer_rows = ""
         for item in validated_cart_items:
@@ -303,11 +310,8 @@ def checkout_api():
         </div>
         """
 
-
-
-
         items_list_text = ""
-        for item in cart:
+        for item in validated_cart_items:
             p_code = item.get('code') or item.get('product_code') or 'N/A'
             items_list_text += f"▫️ <b>{item['title']}</b> (Code: {p_code})\n   Qty: {item['quantity']} | Price: ৳{item['price']}\n"
 
@@ -326,8 +330,6 @@ Payment: {customer['paymentMethod']} {trx_display}
 🛒 <b>Order Items:</b>
 {items_list_text}
 """
-
-        
         send_email(customer['email'], f"Order Confirmation - {order_ref}", customer_email_html)
         send_email(os.getenv('EMAIL_USER'), f"🔔 New Order: {order_ref} - ৳{final_total}", admin_email_html)
         send_telegram_notification(telegram_msg)
