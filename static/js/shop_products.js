@@ -1,5 +1,14 @@
 let mixedProducts = [];
 
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
 async function initShopPage() {
     try {
         const response = await fetch('/api/products');
@@ -31,6 +40,8 @@ async function initShopPage() {
             };
         });
 
+        mixedProducts = shuffleArray(mixedProducts);
+        
         renderMixedGrid();
 
     } catch (err) {
@@ -45,7 +56,7 @@ const renderMixedGrid = () => {
     let html = "";
     mixedProducts.forEach(product => {
         const badgeHtml = product.badge ? `<span class="badge ${product.badge.class}">${product.badge.text}</span>` : '';
-        const oldPriceHtml = product.oldPrice ? `<span class="old-price">৳${product.oldPrice}</span>` : '';
+        const oldPriceHtml = product.oldPrice ? `<span class="old-price">${product.oldPrice}</span>` : '';
         const stars = "★".repeat(product.rating) + "☆".repeat(5 - product.rating);
 
         html += `
@@ -55,7 +66,7 @@ const renderMixedGrid = () => {
                   <button class="wishlist-btn" onclick="toggleWishlist(this)" aria-label="Add to Wishlist">
                         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                   </button>
-                  <img src="${product.image}" alt="${product.title}" class="card-image">
+                  <img src="${product.image}" alt="${product.title}" class="card-image" loading="lazy">
               </div>
               <div class="card-content">
                   <span class="product-category">${product.code}</span>
@@ -84,4 +95,4 @@ const renderMixedGrid = () => {
     }
 };
 
-initShopPage();
+document.addEventListener('DOMContentLoaded', initShopPage);
