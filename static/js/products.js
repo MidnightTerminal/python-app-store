@@ -55,7 +55,7 @@ const renderCategory = (targetType, containerId) => {
         const oldPriceHtml = product.oldPrice ? `<span class="old-price">${product.oldPrice}</span>` : '';
         const stars = "★".repeat(product.rating) + "☆".repeat(5 - product.rating);
 
-        html += `
+        htmlContent += `
           <article class="product-card" data-category="${product.category}" data-id="${product.id}">
               <div class="card-image-wrapper" onclick="openProductModal(this)">
                   ${badgeHtml}
