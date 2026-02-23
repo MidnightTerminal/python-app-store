@@ -68,7 +68,7 @@ const renderCategory = (targetType, containerId) => {
                   <span class="product-category">${product.code}</span>
                   <h3 class="product-title">${product.title}</h3>
                   <div class="rating">
-                      ${stars} <span>(${product.reviews})</span>
+                      ${stars} <span>(${product.review})</span>
                   </div>
                   <div class="card-footer">
                       <div class="price-group">
