@@ -7,9 +7,9 @@ async function loadProducts() {
 
         allProducts = data.map(item => {
             let finalBadge = null;
-            // if (item.badge_text) {
-            //     finalBadge = { text: item.badge_text, class: item.badge_class || 'badge-new' };
-            // } 
+            if (item.badge_text) {
+                finalBadge = { text: item.badge_text, class: item.badge_class || 'badge-new' };
+            } 
             if (item.old_price && item.price < item.old_price) {
                 const discount = Math.round(((item.old_price - item.price) / item.old_price) * 100);
                 finalBadge = { text: `-${discount}% OFF`, class: 'badge-sale' }; 
