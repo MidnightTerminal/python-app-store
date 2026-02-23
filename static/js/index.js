@@ -169,6 +169,32 @@ function showToast(message, iconType) {
 
 
 
+document.addEventListener('DOMContentLoaded', () => {
+    const searchContainer = document.querySelector('.search-container');
+    const searchIcon = document.querySelector('.search-icon');
+    const searchInput = document.querySelector('.search-input');
+
+    // Toggle search bar on icon click (only on mobile)
+    searchIcon.addEventListener('click', (e) => {
+        if (window.innerWidth <= 900) {
+            e.preventDefault(); // Prevent form submission if it's inside a form
+            searchContainer.classList.toggle('active');
+            
+            // Auto-focus the input when it opens
+            if (searchContainer.classList.contains('active')) {
+                searchInput.focus();
+            }
+        }
+    });
+
+    // Optional but recommended: Close the search bar if the user clicks outside of it
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 900 && !searchContainer.contains(e.target)) {
+            searchContainer.classList.remove('active');
+        }
+    });
+});
+
 
 // ================= CART FUNCTIONALITY =================
 let cart = JSON.parse(localStorage.getItem('SHOPPING_CART')) || [];
