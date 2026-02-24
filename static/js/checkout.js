@@ -5,12 +5,16 @@ document.addEventListener('DOMContentLoaded', () => {
 const form = document.getElementById('checkoutForm');
 const successModal = document.getElementById('successModal');
 let cart = JSON.parse(localStorage.getItem('SHOPPING_CART')) || [];
-const SHIPPING_COST = parseInt(document.body.getAttribute('data-shipping-cost')) || 120;
+
+let currentShippingCost = 60;
+
+document.getElementById('custRegion').addEventListener('change', function () {
+    currentShippingCost = this.value === 'dhaka' ? 60 : 150;
+    updateTotals();
+});
 
 function loadCheckoutCart() {
     const container = document.getElementById('summaryItems');
-    const subtotalEl = document.getElementById('summarySubtotal');
-    const totalEl = document.getElementById('summaryTotal');
 
     if (cart.length === 0) {
         window.location.href = '/';
@@ -18,11 +22,9 @@ function loadCheckoutCart() {
     }
 
     container.innerHTML = '';
-    let subtotal = 0;
 
     cart.forEach(item => {
         const itemTotal = item.price * item.quantity;
-        subtotal += itemTotal;
 
         const itemRow = document.createElement('div');
         itemRow.className = 'summary-item';
@@ -39,8 +41,19 @@ function loadCheckoutCart() {
         container.appendChild(itemRow);
     });
 
+    updateTotals();
+}
+
+function updateTotals() {
+    const subtotalEl = document.getElementById('summarySubtotal');
+    const totalEl = document.getElementById('summaryTotal');
+    const shippingEl = document.getElementById('summaryShipping');
+
+    let subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
     subtotalEl.innerText = '৳' + subtotal.toFixed(2);
-    totalEl.innerText = '৳' + (subtotal + SHIPPING_COST).toFixed(2);
+    shippingEl.innerText = '৳' + currentShippingCost.toFixed(2);
+    totalEl.innerText = '৳' + (subtotal + currentShippingCost).toFixed(2);
 }
 
 form.addEventListener('submit', async (e) => {
@@ -58,13 +71,14 @@ form.addEventListener('submit', async (e) => {
         name: document.getElementById('custName').value,
         email: document.getElementById('custEmail').value,
         phone: document.getElementById('custPhone').value,
+        region: document.getElementById('custRegion').value,
         address: document.getElementById('custAddress').value,
         paymentMethod: paymentMethod,
         transactionId: paymentMethod === 'bkash' ? trxId : null
     };
 
     const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const total = subtotal + SHIPPING_COST;
+    const total = subtotal + currentShippingCost;
 
     try {
         const response = await fetch('/api/checkout', {

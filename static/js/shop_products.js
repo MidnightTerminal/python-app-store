@@ -36,12 +36,13 @@ async function initShopPage() {
                 oldPrice: oldPrice ? `৳${oldPrice}` : null,
                 rating: item.rating,
                 reviews: item.reviews_count,
-                badge: badgeObj
+                badge: badgeObj,
+                isUpcoming: item.is_upcoming // NEW: capture the upcoming status
             };
         });
 
         mixedProducts = shuffleArray(mixedProducts);
-        
+
         renderMixedGrid();
 
     } catch (err) {
@@ -59,9 +60,29 @@ const renderMixedGrid = () => {
         const oldPriceHtml = product.oldPrice ? `<span class="old-price">${product.oldPrice}</span>` : '';
         const stars = "★".repeat(product.rating) + "☆".repeat(5 - product.rating);
 
+        const priceHtml = product.isUpcoming
+            ? `<div class="price-group"><span class="current-price" style="color: #999; font-size: 14px;">TBA</span></div>`
+            : `<div class="price-group">
+                  <span class="current-price">${product.price}</span>
+                  ${oldPriceHtml}
+               </div>`;
+
+        // NEW: Upcoming badge and conditional button
+        const upcomingBadgeHtml = product.isUpcoming ? `<span class="upcoming-badge">Coming Soon</span>` : '';
+
+        const buttonHtml = product.isUpcoming
+            ? `<button class="add-cart-btn disabled" disabled aria-label="Upcoming">
+                  <span>Upcoming</span>
+               </button>`
+            : `<button class="add-cart-btn" onclick="addToCart(this)" aria-label="Add to Cart">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                  <span>Add to Cart</span>
+               </button>`;
+
         html += `
           <article class="product-card" data-category="${product.category}" data-id="${product.id}">
               <div class="card-image-wrapper" onclick="openProductModal(this)">
+                  ${upcomingBadgeHtml} 
                   ${badgeHtml}
                   <button class="wishlist-btn" onclick="toggleWishlist(this)" aria-label="Add to Wishlist">
                         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
@@ -75,14 +96,7 @@ const renderMixedGrid = () => {
                       ${stars} <span>(${product.reviews})</span>
                   </div>
                   <div class="card-footer">
-                      <div class="price-group">
-                          <span class="current-price">${product.price}</span>
-                          ${oldPriceHtml}
-                      </div>
-                      <button class="add-cart-btn" onclick="addToCart(this)" aria-label="Add to Cart">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-                          <span>Add to Cart</span>
-                      </button>
+                      ${priceHtml} ${buttonHtml} 
                   </div>
               </div>
           </article>`;

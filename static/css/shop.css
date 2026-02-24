@@ -153,6 +153,29 @@
      color: white;
  }
 
+ 
+.upcoming-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #ff9800; /* Orange color */
+    color: #fff;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 4px;
+    text-transform: uppercase;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.add-cart-btn.disabled {
+    background-color: #cccccc !important;
+    color: #666666 !important;
+    cursor: not-allowed !important;
+    border: none !important;
+}
+
  .wishlist-btn {
      position: absolute;
      top: 12px;

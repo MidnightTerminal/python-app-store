@@ -82,11 +82,7 @@ def shop():
 
 @app.route('/checkout')
 def checkout():
-    try:
-        shipping_cost = int(os.getenv('SHIPPING_COST', '120'))
-    except ValueError:
-        shipping_cost = 120
-    return render_template('checkout.html', shipping_cost=shipping_cost)
+    return render_template('checkout.html')
 
 
 @app.route('/api/products', methods=['GET'])
@@ -142,10 +138,12 @@ def checkout_api():
         validated_cart_items = []
         
 
-        try:
-            SHIPPING_COST = int(os.getenv('SHIPPING_COST', '120'))
-        except ValueError:
-            SHIPPING_COST = 120
+        # try:
+        #     SHIPPING_COST = int(os.getenv('SHIPPING_COST', '120'))
+        # except ValueError:
+        #     SHIPPING_COST = 120
+        region = customer.get('region', 'outside') 
+        SHIPPING_COST = 60 if region == 'dhaka' else 150
 
         for item in cart:
             try:
@@ -349,4 +347,4 @@ def checkout_api():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

@@ -151,7 +151,11 @@ function showToast(message, iconType) {
         iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #333;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>`;
     } else if (iconType === 'heart') {
         iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e63946" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`;
-    } else {
+    } 
+    else if (iconType === 'info') {
+        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+    }
+    else {
         iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
     }
 
@@ -174,20 +178,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchIcon = document.querySelector('.search-icon');
     const searchInput = document.querySelector('.search-input');
 
-    // Toggle search bar on icon click (only on mobile)
     searchIcon.addEventListener('click', (e) => {
         if (window.innerWidth <= 900) {
-            e.preventDefault(); // Prevent form submission if it's inside a form
+            e.preventDefault(); 
             searchContainer.classList.toggle('active');
             
-            // Auto-focus the input when it opens
             if (searchContainer.classList.contains('active')) {
                 searchInput.focus();
             }
         }
     });
 
-    // Optional but recommended: Close the search bar if the user clicks outside of it
     document.addEventListener('click', (e) => {
         if (window.innerWidth <= 900 && !searchContainer.contains(e.target)) {
             searchContainer.classList.remove('active');
@@ -217,6 +218,10 @@ closeCartBtn.addEventListener('click', toggleCart);
 cartOverlay.addEventListener('click', toggleCart);
 
 function addToCart(btnElement) {
+    if (btnElement.hasAttribute('disabled') || btnElement.classList.contains('disabled')) {
+        showToast("This item is upcoming and cannot be ordered yet.", "info");
+        return; 
+    }
     const productCard = btnElement.closest('.product-card');
     const id = parseInt(productCard.getAttribute('data-id'));
     
