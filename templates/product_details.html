@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.title }} | Horizontal Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .details-container { max-width: 1200px; margin: 40px auto; padding: 20px; display: flex; gap: 40px; flex-wrap: wrap; }
+        .details-image { flex: 1; min-width: 300px; border-radius: 10px; overflow: hidden; background: #f9f9f9; text-align: center; position: relative;}
+        .details-image img { width: 100%; max-width: 500px; height: auto; object-fit: contain; }
+        .details-info { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 15px; }
+        .details-price { font-size: 28px; color: #1a3d64; font-weight: bold; }
+        .details-old-price { text-decoration: line-through; color: #999; font-size: 18px; margin-left: 10px; }
+        .details-category { text-transform: uppercase; color: #ff9800; font-weight: bold; letter-spacing: 1px; }
+        .details-desc { color: #555; line-height: 1.6; font-size: 16px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="details-container product-card" data-id="{{ product.id }}" data-category="{{ product.category }}">
+        
+        <div class="details-image">
+            {% if product.is_upcoming %}
+                <span class="upcoming-badge" style="position: absolute; top: 15px; left: 15px;">Coming Soon</span>
+            {% elif product.badge_text %}
+                <span class="badge {{ product.badge_class }}" style="position: absolute; top: 15px; left: 15px; background: #28a745; color: white; padding: 5px 10px; border-radius: 4px;">{{ product.badge_text }}</span>
+            {% endif %}
+            <img src="{{ product.image_url }}" alt="{{ product.title }}" class="card-image">
+        </div>
+
+        <div class="details-info">
+            <span class="details-category product-category">{{ product.code }} | {{ product.category }}</span>
+            <h1 class="product-title" style="margin: 0; font-size: 32px; color: #333;">{{ product.title }}</h1>
+            
+            <div style="color: #f39c12; font-size: 18px;">
+                {{ '★' * product.rating }}{{ '☆' * (5 - product.rating) }} 
+                <span style="color: #777; font-size: 14px;">({{ product.reviews_count }} reviews)</span>
+            </div>
+
+            {% if product.is_upcoming %}
+                <div class="details-price"><span class="current-price" style="color: #999;">TBA</span></div>
+            {% else %}
+                <div class="details-price">
+                    <span class="current-price">৳{{ product.price }}</span>
+                    {% if product.old_price %}
+                        <span class="details-old-price">৳{{ product.old_price }}</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <div class="details-desc">
+                This is a premium product available at Horizontal Shop. Carefully crafted to provide the best experience and durability. We guarantee 100% authenticity on all our {{ product.category }} items.
+            </div>
+
+            <div style="margin-top: 10px;">
+                {% if product.is_upcoming %}
+                    <button class="add-cart-btn disabled" disabled style="padding: 15px 30px; font-size: 16px; border-radius: 8px;">
+                        <span>Upcoming Item</span>
+                    </button>
+                {% else %}
+                    <button class="add-cart-btn" onclick="addToCart(this)" style="padding: 15px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; background: #1a3d64; color: white; border: none;">
+                        <i class="fa-solid fa-cart-shopping"></i> Add to Cart
+                    </button>
+                {% endif %}
+                
+                <button class="wishlist-btn" onclick="toggleWishlist(this)" style="margin-left: 15px; padding: 15px; font-size: 18px; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; background: white;">
+                    <i class="fa-regular fa-heart"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+</html>
