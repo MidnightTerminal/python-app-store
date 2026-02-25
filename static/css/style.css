@@ -199,20 +199,47 @@
      color: var(--primary-color);
  }
 
- .cart-badge {
-     position: absolute;
-     top: -5px;
-     right: -8px;
-     background: #ef4444;
-     color: white;
-     font-size: 0.7rem;
-     height: 18px;
-     width: 18px;
-     border-radius: 50%;
-     display: flex;
-     align-items: center;
-     justify-content: center;
- }
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    height: 18px;
+    width: auto;
+    min-width: 18px;
+    padding: 2px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease-out;
+    transform-origin: center; 
+}
+
+@keyframes cartBump {
+    0%   { transform: scale(1); }
+    25%  { transform: scale(1.2) rotate(-8deg); }
+    50%  { transform: scale(1.2) rotate(8deg); }
+    75%  { transform: scale(1.1) rotate(-4deg); }
+    100% { transform: scale(1); }
+}
+
+.cart-animating {
+    animation: cartBump 0.4s ease-out;
+}
+
+.cart-flying-ghost {
+    position: fixed;
+    z-index: 9999; 
+    pointer-events: none; 
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1); 
+}
+
 
  .menu-toggle {
      font-size: 1.5rem;
