@@ -208,6 +208,7 @@ const cartItemsContainer = document.getElementById('cartItemsContainer');
 const cartTotalAmount = document.getElementById('cartTotalAmount');
 const cartBadge = document.querySelector('.cart-badge');
 
+
 function toggleCart() {
     cartSidebar.classList.toggle('active');
     cartOverlay.classList.toggle('active');
@@ -284,7 +285,10 @@ function updateCart() {
     let totalPrice = 0;
 
     if (cart.length === 0) {
-        cartItemsContainer.innerHTML = '<div class="empty-cart-msg">Your cart is currently empty.</div>';
+    cartItemsContainer.innerHTML = `
+        <div class="empty-cart-msg">
+            Your cart is currently empty!
+        </div>`;
     } else {
         cart.forEach(item => {
             totalPrice += item.price * item.quantity;

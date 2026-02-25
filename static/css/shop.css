@@ -27,7 +27,8 @@
 
 .banner-container img {
     width: 100%;    
-    height: auto;  
+    /* height: 368px;   */
+    height: auto;
     display: block; 
     border-radius: 16px;
 }

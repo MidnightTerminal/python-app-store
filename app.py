@@ -143,7 +143,7 @@ def checkout_api():
         # except ValueError:
         #     SHIPPING_COST = 120
         region = customer.get('region', 'outside') 
-        SHIPPING_COST = 60 if region == 'dhaka' else 150
+        SHIPPING_COST = 80 if region == 'dhaka' else 150
 
         for item in cart:
             try:
@@ -194,11 +194,16 @@ def checkout_api():
         cursor.execute(sql_order, val_order)
 
         sql_item = """
-            INSERT INTO order_items (order_ref, product_title, quantity, price) 
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO order_items (order_ref, product_title, product_code, quantity, price) 
+            VALUES (%s, %s, %s, %s, %s)
         """
         for item in validated_cart_items:
-            cursor.execute(sql_item, (order_ref, item['title'], item['quantity'], item['price']))
+            cursor.execute(sql_item, (
+                order_ref, item['title'], 
+                item['code'], 
+                item['quantity'], 
+                item['price']
+            ))
 
         connection.commit()
 

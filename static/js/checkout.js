@@ -6,10 +6,10 @@ const form = document.getElementById('checkoutForm');
 const successModal = document.getElementById('successModal');
 let cart = JSON.parse(localStorage.getItem('SHOPPING_CART')) || [];
 
-let currentShippingCost = 60;
+let currentShippingCost = 80;
 
 document.getElementById('custRegion').addEventListener('change', function () {
-    currentShippingCost = this.value === 'dhaka' ? 60 : 150;
+    currentShippingCost = this.value === 'dhaka' ? 80 : 150;
     updateTotals();
 });
 
