@@ -79,6 +79,7 @@ const cartItemsContainer = document.getElementById('cartItemsContainer');
 const cartTotalAmount = document.getElementById('cartTotalAmount');
 const cartBadge = document.querySelector('.cart-badge');
 
+
 function toggleCart() {
     cartSidebar.classList.toggle('active');
     cartOverlay.classList.toggle('active');
@@ -88,8 +89,51 @@ cartIcon.addEventListener('click', toggleCart);
 closeCartBtn.addEventListener('click', toggleCart);
 cartOverlay.addEventListener('click', toggleCart);
 
+function triggerCartAnimation() {
+    const cartWrapper = document.querySelector('.cart-icon-wrapper');
+    cartWrapper.classList.remove('cart-animating');
+    void cartWrapper.offsetWidth; 
+    cartWrapper.classList.add('cart-animating');
+}
+
+
+function flyToCart(productImageElement) {
+    const cartIcon = document.querySelector('.cart-icon-wrapper');
+
+    const startCoords = productImageElement.getBoundingClientRect();
+    const endCoords = cartIcon.getBoundingClientRect();
+    
+    const ghostImg = document.createElement('img');
+    ghostImg.src = productImageElement.src;
+    ghostImg.classList.add('cart-flying-ghost');
+    
+    ghostImg.style.left = `${startCoords.left}px`;
+    ghostImg.style.top = `${startCoords.top}px`;
+    ghostImg.style.width = `${startCoords.width}px`;
+    ghostImg.style.height = `${startCoords.height}px`;
+    
+    document.body.appendChild(ghostImg);
+    
+    void ghostImg.offsetWidth;
+    
+    const targetLeft = endCoords.left + (endCoords.width / 2) - 20;
+    const targetTop = endCoords.top + (endCoords.height / 2) - 20;
+    
+    ghostImg.style.left = `${targetLeft}px`;
+    ghostImg.style.top = `${targetTop}px`;
+    ghostImg.style.width = '40px';
+    ghostImg.style.height = '40px';
+    ghostImg.style.opacity = '0.1'; 
+    ghostImg.style.transform = 'scale(0.5)';
+    
+    ghostImg.addEventListener('transitionend', () => {
+        ghostImg.remove();
+        triggerCartAnimation(); 
+    });
+}
+
 function addToCart(btnElement) {
-     if (btnElement.hasAttribute('disabled') || btnElement.classList.contains('disabled')) {
+    if (btnElement.hasAttribute('disabled') || btnElement.classList.contains('disabled')) {
         showToast("This item is upcoming and cannot be ordered yet.", "info");
         return; 
     }
@@ -98,9 +142,10 @@ function addToCart(btnElement) {
     
     const title = productCard.querySelector('.product-title').innerText;
     const priceText = productCard.querySelector('.current-price').innerText;
-    const imageSrc = productCard.querySelector('.card-image').src;
+    const imageElement = productCard.querySelector('.card-image'); 
+    const imageSrc = imageElement.src;
     
-const codeElement = productCard.querySelector('.product-category');
+    const codeElement = productCard.querySelector('.product-category');
     const productCode = codeElement ? codeElement.innerText : 'N/A';
 
     const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
@@ -125,6 +170,8 @@ const codeElement = productCard.querySelector('.product-category');
     }
 
     updateCart();
+    triggerCartAnimation();
+    flyToCart(imageElement);
 }
 
 function removeFromCart(title) {
