@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Reviews Section</title>
+    <!-- Google Fonts for modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --text-light: #94a3b8;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --star-color: #fbbf24;
+            --success-color: #10b981;
+            --transition-speed: 0.3s;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        /* --- Layout & Container --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .reviews-section {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .reviews-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* --- Sidebar Summary --- */
+        .summary-card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 2rem;
+            text-align: center;
+        }
+
+        .average-rating {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1;
+        }
+
+        .total-stars {
+            color: var(--star-color);
+            font-size: 1.25rem;
+            margin: 0.5rem 0;
+        }
+
+        .review-count {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .breakdown-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-gray);
+        }
+
+        .breakdown-bar span {
+            width: 30px;
+        }
+
+        .progress-bg {
+            flex: 1;
+            height: 8px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            margin: 0 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--star-color);
+            border-radius: 4px;
+            width: 0%; /* JS will animate this */
+            transition: width 1s ease-out;
+        }
+
+        .write-review-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: background-color var(--transition-speed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .write-review-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* --- Main Content Area --- */
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--text-dark);
+            color: white;
+            border-color: var(--text-dark);
+        }
+
+        /* --- Review Cards --- */
+        .reviews-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .review-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+            opacity: 0; /* For animation */
+            transform: translateY(20px); /* For animation */
+            animation: fadeUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .review-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 1rem;
+            border: 2px solid #f1f5f9;
+        }
+
+        .reviewer-details h4 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--success-color);
+            margin-left: 0.5rem;
+            background: #ecfdf5;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .date-posted {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .card-rating {
+            color: var(--star-color);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .review-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .review-text {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .review-text.collapsed {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .read-more-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 1.5rem;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 1rem;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s;
+        }
+
+        .action-btn:hover, .action-btn.active {
+            color: var(--primary-color);
+        }
+
+        .action-btn i {
+            font-size: 1rem;
+        }
+
+        /* --- Modal Styles --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.open .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-gray);
+        }
+
+        /* Star Input in Form */
+        .star-input {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-direction: row-reverse; /* Logic trick for CSS hover */
+            justify-content: flex-end;
+        }
+
+        .star-input input {
+            display: none;
+        }
+
+        .star-input label {
+            font-size: 2rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star-input input:checked ~ label,
+        .star-input label:hover,
+        .star-input label:hover ~ label {
+            color: var(--star-color);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background-color: var(--text-dark);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: black;
+        }
+
+        /* --- Toast Notification --- */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 2000;
+        }
+
+        .toast {
+            background: var(--text-dark);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Customer Reviews</h1>
+        <p style="color: var(--text-gray);">See what our verified customers are saying about us.</p>
+    </header>
+
+    <section class="reviews-section">
+        <!-- Left Sidebar: Summary -->
+        <aside>
+            <div class="summary-card">
+                <div class="average-rating" id="avgRatingDisplay">4.8</div>
+                <div class="total-stars" id="avgStarsDisplay">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                </div>
+                <div class="review-count">Based on <span id="totalReviewsCount">0</span> reviews</div>
+
+                <!-- Rating Breakdown -->
+                <div id="ratingBreakdown">
+                    <!-- Populated by JS -->
+                </div>
+
+                <button class="write-review-btn" id="openModalBtn">
+                    <i class="fas fa-pen"></i> Write a Review
+                </button>
+            </div>
+        </aside>
+
+        <!-- Right Content: Review List -->
+        <main>
+            <div class="reviews-header">
+                <h3 style="font-size: 1.25rem;">Reviews</h3>
+                <div class="filter-tabs" id="filterTabs">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="5">5 Stars</button>
+                    <button class="filter-btn" data-filter="4">4 Stars</button>
+                    <button class="filter-btn" data-filter="3">3 Stars</button>
+                    <button class="filter-btn" data-filter="1-2">1-2 Stars</button>
+                    <button class="filter-btn" data-filter="media">With Photos</button>
+                </div>
+            </div>
+
+            <div class="reviews-grid" id="reviewsContainer">
+                <!-- Reviews injected here by JS -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="filter-btn" id="loadMoreBtn" style="padding: 0.75rem 2rem;">Load More Reviews</button>
+            </div>
+        </main>
+    </section>
+</div>
+
+<!-- Write Review Modal -->
+<div class="modal-overlay" id="reviewModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Write a Review</h3>
+            <button class="close-modal" id="closeModalBtn">&times;</button>
+        </div>
+        <form id="reviewForm">
+            <div class="star-input">
+                <input type="radio" id="star5" name="rating" value="5" required /><label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
+                <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
+                <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
+                <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
+                <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star"><i class="fas fa-star"></i></label>
+            </div>
+
+            <div class="form-group">
+                <label>Headline</label>
+                <input type="text" placeholder="Sum up your experience" required>
+            </div>
+
+            <div class="form-group">
+                <label>Your Review</label>
+                <textarea rows="4" placeholder="What did you like or dislike?" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Name (Public)</label>
+                <input type="text" placeholder="Enter your name" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Review</button>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    // --- Mock Data ---
+    const initialReviews = [
+        {
+            id: 1,
+            name: "Sarah Jenkins",
+            avatar: "https://picsum.photos/seed/sarah/100/100",
+            rating: 5,
+            date: "2 days ago",
+            verified: true,
+            title: "Absolutely love this product!",
+            content: "I was skeptical at first, but this exceeded my expectations. The quality is top-notch and it arrived much faster than I anticipated. I've already recommended it to all my friends. The customer service was also very helpful when I had a question about sizing.",
+            helpful: 12,
+            image: null
+        },
+        {
+            id: 2,
+            name: "Michael Chen",
+            avatar: "https://picsum.photos/seed/michael/100/100",
+            rating: 4,
+            date: "1 week ago",
+            verified: true,
+            title: "Great value for money",
+            content: "Solid build quality and looks exactly like the pictures. The only reason I'm giving it 4 stars is because the instructions were a bit hard to read, but once set up, it works perfectly.",
+            helpful: 5,
+            image: "https://picsum.photos/seed/prod1/300/200"
+        },
+        {
+            id: 3,
+            name: "Jessica Alverez",
+            avatar: "https://picsum.photos/seed/jessica/100/100",
+            rating: 5,
+            date: "2 weeks ago",
+            verified: false,
+            title: "Perfect for my needs",
+            content: "This fits perfectly in my apartment. It's sleek, modern, and functional. I use it every single day and have had no issues so far. Definitely buying from this brand again.",
+            helpful: 8,
+            image: null
+        },
+        {
+            id: 4,
+            name: "David Smith",
+            avatar: "https://picsum.photos/seed/david/100/100",
+            rating: 2,
+            date: "3 weeks ago",
+            verified: true,
+            title: "Not what I expected",
+            content: "The material felt a bit cheaper than what was advertised. It does the job, but I expected a more premium feel given the price point. Shipping was on time, at least.",
+            helpful: 3,
+            image: null
+        },
+        {
+            id: 5,
+            name: "Emily White",
+            avatar: "https://picsum.photos/seed/emily/100/100",
+            rating: 5,
+            date: "1 month ago",
+            verified: true,
+            title: "A game changer!",
+            content: "I don't usually write reviews, but this product is amazing. It solved a major problem I had at work. The interface is intuitive and the design is beautiful.",
+            helpful: 24,
+            image: "https://picsum.photos/seed/prod2/300/200"
+        }
+    ];
+
+    // State
+    let reviews = [...initialReviews];
+    let currentFilter = 'all';
+
+    // --- DOM Elements ---
+    const reviewsContainer = document.getElementById('reviewsContainer');
+    const avgRatingDisplay = document.getElementById('avgRatingDisplay');
+    const avgStarsDisplay = document.getElementById('avgStarsDisplay');
+    const totalReviewsCount = document.getElementById('totalReviewsCount');
+    const ratingBreakdown = document.getElementById('ratingBreakdown');
+    const filterTabs = document.getElementById('filterTabs');
+    const modal = document.getElementById('reviewModal');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const reviewForm = document.getElementById('reviewForm');
+    const toastContainer = document.getElementById('toastContainer');
+
+    // --- Helper Functions ---
+    function generateStars(rating) {
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            if (i <= rating) {
+                starsHtml += '<i class="fas fa-star"></i>';
+            } else {
+                starsHtml += '<i class="far fa-star" style="color: #e2e8f0;"></i>';
+            }
+        }
+        return starsHtml;
+    }
+
+    function formatDate(dateString) {
+        // In a real app, use a date library. Here we return static string.
+        return dateString;
+    }
+
+    // --- Rendering Logic ---
+    function updateSummary() {
+        const total = reviews.length;
+        const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+        const avg = total > 0 ? (sum / total).toFixed(1) : 0;
+
+        // Animate Numbers
+        avgRatingDisplay.innerText = avg;
+        avgStarsDisplay.innerHTML = generateStars(Math.round(avg));
+        totalReviewsCount.innerText = total;
+
+        // Calculate Breakdown
+        const breakdown = {5:0, 4:0, 3:0, 2:0, 1:0};
+        reviews.forEach(r => breakdown[r.rating]++);
+
+        // Render Breakdown Bars
+        ratingBreakdown.innerHTML = Object.keys(breakdown).sort((a,b) => b-a).map(star => {
+            const count = breakdown[star];
+            const percentage = total > 0 ? (count / total) * 100 : 0;
+            return `
+                <div class="breakdown-bar">
+                    <span>${star} <i class="fas fa-star" style="font-size: 0.7rem;"></i></span>
+                    <div class="progress-bg">
+                        <div class="progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <span>${count}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderReviews() {
+        reviewsContainer.innerHTML = '';
+        
+        const filtered = reviews.filter(review => {
+            if (currentFilter === 'all') return true;
+            if (currentFilter === 'media') return !!review.image;
+            if (currentFilter === '1-2') return review.rating <= 2;
+            return review.rating == currentFilter;
+        });
+
+        if (filtered.length === 0) {
+            reviewsContainer.innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-gray);">No reviews found for this filter.</div>';
+            return;
+        }
+
+        filtered.forEach((review, index) => {
+            const card = document.createElement('article');
+            card.className = 'review-card';
+            // Stagger animation delay
+            card.style.animationDelay = `${index * 0.1}s`;
+
+            card.innerHTML = `
+                <div class="reviewer-info">
+                    <img src="${review.avatar}" alt="${review.name}" class="avatar">
+                    <div class="reviewer-details">
+                        <h4>
+                            ${review.name} 
+                            ${review.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i> Verified</span>' : ''}
+                        </h4>
+                        <div class="date-posted">${formatDate(review.date)}</div>
+                    </div>
+                </div>
+                <div class="card-rating">
+                    ${generateStars(review.rating)}
+                </div>
+                <h5 class="review-title">${review.title}</h5>
+                <div class="review-text collapsed" id="text-${review.id}">
+                    ${review.content}
+                </div>
+                ${review.content.length > 150 ? `<button class="read-more-btn" onclick="toggleText(${review.id}, this)">Read more</button>` : ''}
+                
+                ${review.image ? `<img src="${review.image}" style="width:100px; height:100px; object-fit:cover; border-radius:8px; margin-bottom:1rem; border:1px solid #eee;">` : ''}
+
+                <div class="review-actions">
+                    <button class="action-btn" onclick="toggleHelpful(this)">
+                        <i class="far fa-thumbs-up"></i> Helpful (${review.helpful})
+                    </button>
+                    <button class="action-btn">
+                        <i class="far fa-flag"></i> Report
+                    </button>
+                </div>
+            `;
+            reviewsContainer.appendChild(card);
+        });
+    }
+
+    // --- Interaction Logic ---
+    
+    // Toggle Read More
+    window.toggleText = function(id, btn) {
+        const textEl = document.getElementById(`text-${id}`);
+        if (textEl.classList.contains('collapsed')) {
+            textEl.classList.remove('collapsed');
+            btn.innerText = 'Show less';
+        } else {
+            textEl.classList.add('collapsed');
+            btn.innerText = 'Read more';
+        }
+    };
+
+    // Toggle Helpful
+    window.toggleHelpful = function(btn) {
+        btn.classList.toggle('active');
+        const icon = btn.querySelector('i');
+        let count = parseInt(btn.innerText.match(/\d+/)[0]);
+        
+        if (btn.classList.contains('active')) {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            btn.innerHTML = `<i class="fas fa-thumbs-up"></i> Helpful (${count + 1})`;
+            showToast("Thanks for your feedback!");
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            btn.innerHTML = `<i class="far fa-thumbs-up"></i> Helpful (${count - 1})`;
+        }
+    };
+
+    // Filtering
+    filterTabs.addEventListener('click', (e) => {
+        if (e.target.classList.contains('filter-btn')) {
+            // Remove active class from all
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            // Add to clicked
+            e.target.classList.add('active');
+            // Update state
+            currentFilter = e.target.dataset.filter;
+            renderReviews();
+        }
+    });
+
+    // Modal Logic
+    openModalBtn.addEventListener('click', () => {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    });
+
+    const closeModal = () => {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+    };
+
+    closeModalBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    // Form Submission
+    reviewForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get Form Values
+        const formData = new FormData(reviewForm);
+        const rating = parseInt(formData.get('rating'));
+        const title = reviewForm.querySelector('input[type="text"]').value;
+        const content = reviewForm.querySelector('textarea').value;
+        const name = reviewForm.querySelectorAll('input[type="text"]')[1].value;
+
+        // Create new Review Object
+        const newReview = {
+            id: Date.now(),
+            name: name,
+            avatar: `https://picsum.photos/seed/${name}/100/100`,
+            rating: rating || 5,
+            date: "Just now",
+            verified: false, // Can't be verified immediately
+            title: title,
+            content: content,
+            helpful: 0,
+            image: null
+        };
+
+        // Add to state
+        reviews.unshift(newReview);
+        
+        // Update UI
+        updateSummary();
+        currentFilter = 'all'; // Reset filter to see new review
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('[data-filter="all"]').classList.add('active');
+        renderReviews();
+        
+        // Close and Reset
+        closeModal();
+        reviewForm.reset();
+        showToast("Review submitted successfully!");
+    });
+
+    // Toast Notification System
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="fas fa-check-circle" style="color: var(--success-color)"></i> ${message}`;
+        
+        toastContainer.appendChild(toast);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease forwards';
+            toast.addEventListener('animationend', () => {
+                toast.remove();
+            });
+        }, 3000);
+    }
+
+    // --- Initialization ---
+    updateSummary();
+    renderReviews();
+
+</script>
+</body>
+</html>

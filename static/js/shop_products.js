@@ -1,5 +1,18 @@
 let mixedProducts = [];
 
+const initAOS = () => {
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-back',
+            once: true,
+            mirror: false,
+            offset: 50
+        });
+    }
+};
+
+
 function shuffleArray(array) {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -9,9 +22,12 @@ function shuffleArray(array) {
     return shuffled;
 }
 
+
 async function initShopPage() {
     try {
         const response = await fetch('/api/products');
+        if (!response.ok) throw new Error('Network response was not ok');
+        
         const data = await response.json();
 
         mixedProducts = data.map(item => {
@@ -34,28 +50,31 @@ async function initShopPage() {
                 image: item.image_url,
                 price: `৳${currentPrice}`,
                 oldPrice: oldPrice ? `৳${oldPrice}` : null,
-                rating: item.rating,
-                reviews: item.reviews_count,
+                rating: item.rating || 0,
+                reviews: item.reviews_count || 0,
                 badge: badgeObj,
-                isUpcoming: item.is_upcoming // NEW: capture the upcoming status
+                isUpcoming: item.is_upcoming 
             };
         });
 
         mixedProducts = shuffleArray(mixedProducts);
-
         renderMixedGrid();
 
     } catch (err) {
-        console.error("Failed to load shop products from database", err);
+        console.error("Failed to load shop products from database:", err);
     }
 }
+
 
 const renderMixedGrid = () => {
     const container = document.getElementById('productsGrid');
     if (!container) return;
 
     let html = "";
-    mixedProducts.forEach(product => {
+    
+    mixedProducts.forEach((product, index) => {
+        const aosDelay = (index % 4) * 100;
+
         const badgeHtml = product.badge ? `<span class="badge ${product.badge.class}">${product.badge.text}</span>` : '';
         const oldPriceHtml = product.oldPrice ? `<span class="old-price">${product.oldPrice}</span>` : '';
         const stars = "★".repeat(product.rating) + "☆".repeat(5 - product.rating);
@@ -67,7 +86,6 @@ const renderMixedGrid = () => {
                   ${oldPriceHtml}
                </div>`;
 
-        // NEW: Upcoming badge and conditional button
         const upcomingBadgeHtml = product.isUpcoming ? `<span class="upcoming-badge">Coming Soon</span>` : '';
 
         const buttonHtml = product.isUpcoming
@@ -80,11 +98,17 @@ const renderMixedGrid = () => {
                </button>`;
 
         html += `
-          <article class="product-card" data-category="${product.category}" data-id="${product.id}">
+          <article class="product-card" 
+                   data-category="${product.category}" 
+                   data-id="${product.id}"
+                   data-aos="zoom-in-up" 
+                   data-aos-delay="${aosDelay}"
+                   data-aos-duration="800"
+                   data-aos-once="true">
               <div class="card-image-wrapper" onclick="openProductModal(this)">
                   ${upcomingBadgeHtml} 
                   ${badgeHtml}
-                  <button class="wishlist-btn" onclick="toggleWishlist(this)" aria-label="Add to Wishlist">
+                  <button class="wishlist-btn" onclick="toggleWishlist(event, this)" aria-label="Add to Wishlist">
                         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                   </button>
                   <img src="${product.image}" alt="${product.title}" class="card-image" loading="lazy">
@@ -104,9 +128,17 @@ const renderMixedGrid = () => {
 
     container.innerHTML = html;
 
+    if (typeof AOS !== 'undefined') {
+        AOS.refresh();
+    }
+
     if (window.initializeShopPagination) {
         window.initializeShopPagination();
     }
 };
 
-document.addEventListener('DOMContentLoaded', initShopPage);
+
+document.addEventListener('DOMContentLoaded', () => {
+    initAOS();     
+    initShopPage(); 
+});

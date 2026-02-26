@@ -2,6 +2,15 @@ let allProducts = [];
 
 async function loadProducts() {
     try {
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 800,
+                offset: 100,
+                once: true,
+                easing: 'ease-in-out'
+            });
+        }
+
         const response = await fetch('/api/products');
         const data = await response.json();
 
@@ -51,12 +60,14 @@ const renderCategory = (targetType, containerId) => {
     );
 
     let htmlContent = "";
-    filteredProducts.forEach(product => {
+
+    filteredProducts.forEach((product, index) => {
         const badgeHtml = product.badge ? `<span class="badge ${product.badge.class}">${product.badge.text}</span>` : '';
         const oldPriceHtml = product.oldPrice ? `<span class="old-price">${product.oldPrice}</span>` : '';
         const stars = "★".repeat(product.rating) + "☆".repeat(5 - product.rating);
-
         const upcomingBadgeHtml = product.isUpcoming ? `<span class="upcoming-badge">Coming Soon</span>` : '';
+
+        const aosDelay = (index % 4) * 100;
 
         const priceHtml = product.isUpcoming
             ? `<div class="price-group"><span class="current-price" style="color: #999; font-size: 14px;">TBA</span></div>`
@@ -75,11 +86,17 @@ const renderCategory = (targetType, containerId) => {
                </button>`;
 
         htmlContent += `
-          <article class="product-card" data-category="${product.type}" data-id="${product.id}">
+          <article class="product-card" 
+                   data-category="${product.type}" 
+                   data-id="${product.id}"
+                   data-aos="zoom-out" 
+                   data-aos-delay="${aosDelay}"
+                   data-aos-duration="600"
+                   data-aos-once="true">
               <div class="card-image-wrapper" onclick="openProductModal(this)">
                   ${upcomingBadgeHtml} 
                   ${badgeHtml}
-                  <button class="wishlist-btn" onclick="toggleWishlist(this)" aria-label="Add to Wishlist">
+                  <button class="wishlist-btn" onclick="toggleWishlist(event, this)" aria-label="Add to Wishlist">
                         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                   </button>
                   <img src="${product.image}" alt="${product.title}" class="card-image" loading="lazy">
@@ -98,6 +115,10 @@ const renderCategory = (targetType, containerId) => {
     });
 
     container.innerHTML = htmlContent;
+
+    if (typeof AOS !== 'undefined') {
+        AOS.refresh();
+    }
 };
 
-loadProducts();
+document.addEventListener('DOMContentLoaded', loadProducts);

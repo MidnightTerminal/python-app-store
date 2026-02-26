@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
     <title>Home | Horizontal Shop</title>
 </head>
@@ -171,10 +172,10 @@
 
         <header class="product-section-header">
             <div class="section-title">
-                <h2>Premium Ladies Bags</h2>
-                <p>Discover our latest collection of exclusive handbags.</p>
+                <h2 data-aos="fade-right">Premium Ladies Bags</h2>
+                <p data-aos="fade-right">Discover our latest collection of exclusive handbags.</p>
             </div>
-            <a href="{{ url_for('shop') }}" class="view-all-link">View All Products
+            <a href="{{ url_for('shop') }}" class="view-all-link" data-aos="fade-right">View All Products
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7" />
@@ -208,10 +209,10 @@
     <main class="showcase-section">
         <header class="product-section-header">
             <div class="section-title">
-                <h2>Ladies Items</h2>
-                <p>Discover our latest collection of exclusive ladies items.</p>
+                <h2 data-aos="fade-right">Ladies Items</h2>
+                <p data-aos="fade-right">Discover our latest collection of exclusive ladies items.</p>
             </div>
-            <a href="{{ url_for('shop') }}" class="view-all-link">View All Products
+            <a href="{{ url_for('shop') }}" class="view-all-link" data-aos="fade-right">View All Products
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7" />
@@ -245,10 +246,10 @@
     <main class="showcase-section">
         <header class="product-section-header">
             <div class="section-title">
-                <h2>Sneakers</h2>
-                <p>Discover our latest collection of exclusive shoes/sneakers.</p>
+                <h2 data-aos="fade-right">Sneakers</h2>
+                <p data-aos="fade-right">Discover our latest collection of exclusive shoes/sneakers.</p>
             </div>
-            <a href="{{ url_for('shop') }}" class="view-all-link">View All Products
+            <a href="{{ url_for('shop') }}" class="view-all-link" data-aos="fade-right">View All Products
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7" />
@@ -283,10 +284,10 @@
     <main class="showcase-section">
         <header class="product-section-header">
             <div class="section-title">
-                <h2>Kids Items</h2>
-                <p>Discover our latest collection of exclusive kids items.</p>
+                <h2 data-aos="fade-right">Kids Items</h2>
+                <p data-aos="fade-right">Discover our latest collection of exclusive kids items.</p>
             </div>
-            <a href="{{ url_for('shop') }}" class="view-all-link">View All Products
+            <a href="{{ url_for('shop') }}" class="view-all-link" data-aos="fade-right">View All Products
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7" />
@@ -321,10 +322,10 @@
     <main class="showcase-section">
         <header class="product-section-header">
             <div class="section-title">
-                <h2>Gadget & Accessories</h2>
-                <p>Discover our latest collection of gadgets and accessories</p>
+                <h2 data-aos="fade-right">Gadget & Accessories</h2>
+                <p data-aos="fade-right">Discover our latest collection of gadgets and accessories</p>
             </div>
-            <a href="{{ url_for('shop') }}" class="view-all-link">View All Products
+            <a href="{{ url_for('shop') }}" class="view-all-link" data-aos="fade-right">View All Products
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7" />
@@ -531,6 +532,7 @@
 
     <script src="{{ url_for('static', filename='js/index.js') }}"></script>
     <script src="{{ url_for('static', filename='js/products.js') }}"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 </body>
 
 </html>
