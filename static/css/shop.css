@@ -105,6 +105,7 @@
      flex-direction: column;
      scroll-snap-align: start;
      width: 100%;
+     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
  }
 
  .product-card:hover {
