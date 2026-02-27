@@ -494,6 +494,7 @@
      line-height: 1.2;
      margin-bottom: 20px;
      letter-spacing: -1px;
+     font-family: 'Cinzel', serif;
  }
 
  .hero-text .highlight {
@@ -978,11 +979,11 @@
 
  .showcase-section h1 {
      text-align: center;
-     /* margin-bottom: 20px; */
      padding: 10px 0;
      background-color: #2563eb;
      color: white;
      border-radius: 6px;
+     font-family: 'Cinzel';
  }
 
  .product-section-header {
@@ -1001,6 +1002,7 @@
      display: flex;
      align-items: center;
      gap: 10px;
+     font-family: 'Cinzel';
  }
 
  .section-title p {
