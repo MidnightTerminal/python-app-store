@@ -2,30 +2,46 @@ let currentPage = 1;
 let itemsPerPage = 12;
 let allProducts = [];
 
+
+const categoryUrlMap = {
+    "kids-item": "kids-toys",
+    "bag" : "ladies-handbag",
+    "sneaker" : "sneakers",
+    "ladies-item": "ladies-clothes"
+};
+
 window.initializeShopPagination = function() {
-    // console.log("Initializing Pagination & Filters...");
-    
     const productElements = document.querySelectorAll('.product-card');
     
-    if (productElements.length === 0) {
-        console.warn("No products found to paginate.");
-        return;
-    }
-
-    setupFilters(productElements);
+    if (productElements.length === 0) return;
 
     allProducts = Array.from(productElements).map((el, index) => ({
         id: index + 1,
         element: el,
         category: el.getAttribute('data-category') 
     }));
+
+    setupFilters(); 
+    const params = new URLSearchParams(window.location.search);
+    const urlValue = params.get('category');
     
-    currentPage = 1;
-    displayProducts();
-    displayPageNumbers();
+    let filterToApply = 'all';
+
+    if (urlValue) {
+        const internalKey = Object.keys(categoryUrlMap).find(key => categoryUrlMap[key] === urlValue);
+        filterToApply = internalKey || urlValue;
+    }
+
+    applyFilter(filterToApply, false); 
 };
 
-function setupFilters(productElements) {
+window.addEventListener('popstate', () => {
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get('category') || 'all';
+    applyFilter(category, false); 
+});
+
+function setupFilters() {
     const filterBtns = document.querySelectorAll('.filter-btn');
 
     filterBtns.forEach(btn => {
@@ -33,26 +49,39 @@ function setupFilters(productElements) {
         btn.parentNode.replaceChild(newBtn, btn);
 
         newBtn.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            newBtn.classList.add('active');
-
             const filterValue = newBtn.getAttribute('data-filter');
-
-            allProducts.forEach(prod => {
-                const category = prod.category;
-                const isMatch = (filterValue === 'all' || filterValue === category);
-                
-                prod.isHidden = !isMatch; 
-                
-                if (!isMatch) prod.element.style.display = 'none';
-            });
-
-            currentPage = 1; 
-            displayProducts();
-            displayPageNumbers();
+            applyFilter(filterValue, true);
         });
     });
 }
+
+
+function applyFilter(filterValue, shouldUpdateUrl = true) {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-filter') === filterValue);
+    });
+
+    if (shouldUpdateUrl) {
+        const url = new URL(window.location);
+        if (filterValue === 'all') {
+            url.searchParams.delete('category');
+        } else {
+            const urlFriendlyName = categoryUrlMap[filterValue] || filterValue;
+            url.searchParams.set('category', urlFriendlyName);
+        }
+        window.history.pushState({}, '', url);
+    }
+
+    allProducts.forEach(prod => {
+        const isMatch = (filterValue === 'all' || filterValue === prod.category);
+        prod.isHidden = !isMatch;
+        prod.element.style.display = 'none'; 
+    });
+
+    currentPage = 1; 
+    displayProducts();
+}
+
 
 function displayProducts() {
     const visibleItems = allProducts.filter(p => !p.isHidden);
