@@ -1,4 +1,5 @@
-let mixedProducts = [];
+let currentProducts = []; 
+let upcomingProducts = [];
 
 const initAOS = () => {
     if (typeof AOS !== 'undefined') {
@@ -12,7 +13,6 @@ const initAOS = () => {
     }
 };
 
-
 function shuffleArray(array) {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -22,7 +22,6 @@ function shuffleArray(array) {
     return shuffled;
 }
 
-
 async function initShopPage() {
     try {
         const response = await fetch('/api/products');
@@ -30,19 +29,17 @@ async function initShopPage() {
 
         const data = await response.json();
 
-        mixedProducts = data.map(item => {
+        const allFormatted = data.map(item => {
             const currentPrice = parseFloat(item.price);
             const oldPrice = item.old_price ? parseFloat(item.old_price) : null;
             let badgeObj = null;
 
             if (item.is_upcoming) {
                 badgeObj = { text: 'Coming Soon', class: 'upcoming-badge' };
-            }
-            else if (oldPrice && oldPrice > currentPrice) {
+            } else if (oldPrice && oldPrice > currentPrice) {
                 const discountPercent = Math.round(((oldPrice - currentPrice) / oldPrice) * 100);
                 badgeObj = { text: `-${discountPercent}% OFF`, class: 'badge-sale' };
-            }
-            else if (item.badge_text) {
+            } else if (item.badge_text) {
                 badgeObj = { text: item.badge_text, class: item.badge_class || 'badge-new' };
             }
 
@@ -61,24 +58,35 @@ async function initShopPage() {
             };
         });
 
-        mixedProducts = shuffleArray(mixedProducts);
-        renderMixedGrid();
+        currentProducts = shuffleArray(allFormatted.filter(p => !p.isUpcoming));
+        upcomingProducts = allFormatted.filter(p => p.isUpcoming);
+
+        renderProductList(currentProducts, 'productsGrid');
+
+        const upcomingContainer = document.getElementById('upcomingSection');
+        if (upcomingProducts.length > 0) {
+            upcomingContainer.style.display = 'block';
+            renderProductList(upcomingProducts, 'upcomingGrid');
+        } else {
+            upcomingContainer.style.display = 'none';
+        }
+
+        if (window.initializeShopPagination) {
+            window.initializeShopPagination();
+        }
 
     } catch (err) {
-        console.error("Failed to load shop products from database:", err);
+        console.error("Failed to load shop products:", err);
     }
 }
 
-
-const renderMixedGrid = () => {
-    const container = document.getElementById('productsGrid');
+const renderProductList = (products, containerId) => {
+    const container = document.getElementById(containerId);
     if (!container) return;
 
     let html = "";
-
-    mixedProducts.forEach((product, index) => {
+    products.forEach((product, index) => {
         const aosDelay = (index % 4) * 100;
-
         const badgeHtml = product.badge ? `<span class="badge ${product.badge.class}">${product.badge.text}</span>` : '';
         const oldPriceHtml = product.oldPrice ? `<span class="old-price">${product.oldPrice}</span>` : '';
         const stars = "★".repeat(product.rating) + "☆".repeat(5 - product.rating);
@@ -90,56 +98,31 @@ const renderMixedGrid = () => {
                   ${oldPriceHtml}
                </div>`;
 
-        const upcomingBadgeHtml = product.isUpcoming ? `<span class="upcoming-badge">Coming Soon</span>` : '';
-
         const buttonHtml = product.isUpcoming
-            ? `<button class="add-cart-btn disabled" disabled aria-label="Upcoming">
-                  <span>Upcoming</span>
-               </button>`
-            : `<button class="add-cart-btn" onclick="addToCart(this)" aria-label="Add to Cart">
+            ? `<button class="add-cart-btn disabled" disabled><span>Upcoming</span></button>`
+            : `<button class="add-cart-btn" onclick="addToCart(this)">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                   <span>Add to Cart</span>
                </button>`;
 
         html += `
-          <article class="product-card" 
-                   data-category="${product.category}" 
-                   data-id="${product.id}"
-                   data-aos="zoom-in-up" 
-                   data-aos-delay="${aosDelay}"
-                   data-aos-duration="800"
-                   data-aos-once="true">
+          <article class="product-card" data-category="${product.category}" data-aos="zoom-in-up" data-aos-delay="${aosDelay}">
               <div class="card-image-wrapper" onclick="openProductModal(this)">
                   ${badgeHtml}
-                  <button class="wishlist-btn" onclick="toggleWishlist(event, this)" aria-label="Add to Wishlist">
-                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                  </button>
                   <img src="${product.image}" alt="${product.title}" class="card-image" loading="lazy">
               </div>
               <div class="card-content">
                   <span class="product-category">${product.code}</span>
                   <h3 class="product-title">${product.title}</h3>
-                  <div class="rating">
-                      ${stars} <span>(${product.reviews})</span>
-                  </div>
-                  <div class="card-footer">
-                      ${priceHtml} ${buttonHtml} 
-                  </div>
+                  <div class="rating">${stars} <span>(${product.reviews})</span></div>
+                  <div class="card-footer">${priceHtml} ${buttonHtml}</div>
               </div>
           </article>`;
     });
 
     container.innerHTML = html;
-
-    if (typeof AOS !== 'undefined') {
-        AOS.refresh();
-    }
-
-    if (window.initializeShopPagination) {
-        window.initializeShopPagination();
-    }
+    if (typeof AOS !== 'undefined') AOS.refresh();
 };
-
 
 document.addEventListener('DOMContentLoaded', () => {
     initAOS();
