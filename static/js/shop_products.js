@@ -27,7 +27,7 @@ async function initShopPage() {
     try {
         const response = await fetch('/api/products');
         if (!response.ok) throw new Error('Network response was not ok');
-        
+
         const data = await response.json();
 
         mixedProducts = data.map(item => {
@@ -35,10 +35,14 @@ async function initShopPage() {
             const oldPrice = item.old_price ? parseFloat(item.old_price) : null;
             let badgeObj = null;
 
-            if (oldPrice && oldPrice > currentPrice) {
+            if (item.is_upcoming) {
+                badgeObj = { text: 'Coming Soon', class: 'upcoming-badge' };
+            }
+            else if (oldPrice && oldPrice > currentPrice) {
                 const discountPercent = Math.round(((oldPrice - currentPrice) / oldPrice) * 100);
                 badgeObj = { text: `-${discountPercent}% OFF`, class: 'badge-sale' };
-            } else if (item.badge_text) {
+            }
+            else if (item.badge_text) {
                 badgeObj = { text: item.badge_text, class: item.badge_class || 'badge-new' };
             }
 
@@ -53,7 +57,7 @@ async function initShopPage() {
                 rating: item.rating || 0,
                 reviews: item.reviews_count || 0,
                 badge: badgeObj,
-                isUpcoming: item.is_upcoming 
+                isUpcoming: item.is_upcoming
             };
         });
 
@@ -71,7 +75,7 @@ const renderMixedGrid = () => {
     if (!container) return;
 
     let html = "";
-    
+
     mixedProducts.forEach((product, index) => {
         const aosDelay = (index % 4) * 100;
 
@@ -106,7 +110,6 @@ const renderMixedGrid = () => {
                    data-aos-duration="800"
                    data-aos-once="true">
               <div class="card-image-wrapper" onclick="openProductModal(this)">
-                  ${upcomingBadgeHtml} 
                   ${badgeHtml}
                   <button class="wishlist-btn" onclick="toggleWishlist(event, this)" aria-label="Add to Wishlist">
                         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
@@ -139,6 +142,6 @@ const renderMixedGrid = () => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    initAOS();     
-    initShopPage(); 
+    initAOS();
+    initShopPage();
 });

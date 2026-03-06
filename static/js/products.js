@@ -16,12 +16,17 @@ async function loadProducts() {
 
         allProducts = data.map(item => {
             let finalBadge = null;
-            if (item.badge_text) {
-                finalBadge = { text: item.badge_text, class: item.badge_class || 'badge-new' };
+            if (item.is_upcoming) {
+                finalBadge = { text: 'Coming Soon', class: 'upcoming-badge' };
             }
-            if (item.old_price && item.price < item.old_price) {
-                const discount = Math.round(((item.old_price - item.price) / item.old_price) * 100);
-                finalBadge = { text: `-${discount}% OFF`, class: 'badge-sale' };
+            else {
+                if (item.badge_text) {
+                    finalBadge = { text: item.badge_text, class: item.badge_class || 'badge-new' };
+                }
+                if (item.old_price && item.price < item.old_price) {
+                    const discount = Math.round(((item.old_price - item.price) / item.old_price) * 100);
+                    finalBadge = { text: `-${discount}% OFF`, class: 'badge-sale' };
+                }
             }
 
             return {
@@ -65,7 +70,7 @@ const renderCategory = (targetType, containerId) => {
         const badgeHtml = product.badge ? `<span class="badge ${product.badge.class}">${product.badge.text}</span>` : '';
         const oldPriceHtml = product.oldPrice ? `<span class="old-price">${product.oldPrice}</span>` : '';
         const stars = "★".repeat(product.rating) + "☆".repeat(5 - product.rating);
-        const upcomingBadgeHtml = product.isUpcoming ? `<span class="upcoming-badge">Coming Soon</span>` : '';
+
 
         const aosDelay = (index % 4) * 100;
 
@@ -76,7 +81,7 @@ const renderCategory = (targetType, containerId) => {
                   ${oldPriceHtml}
                </div>`;
 
-        const buttonHtml = product.isUpcoming 
+        const buttonHtml = product.isUpcoming
             ? `<button class="add-cart-btn disabled" disabled aria-label="Upcoming">
                   <span>Upcoming</span>
                </button>`
@@ -94,7 +99,6 @@ const renderCategory = (targetType, containerId) => {
                    data-aos-duration="600"
                    data-aos-once="true">
               <div class="card-image-wrapper" onclick="openProductModal(this)">
-                  ${upcomingBadgeHtml} 
                   ${badgeHtml}
                   <button class="wishlist-btn" onclick="toggleWishlist(event, this)" aria-label="Add to Wishlist">
                         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
