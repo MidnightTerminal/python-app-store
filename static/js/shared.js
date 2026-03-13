@@ -19,6 +19,30 @@ document.addEventListener('click', (e) => {
 // ===============navbar end=================
 
 
+// ============= search icon ===================
+document.addEventListener('DOMContentLoaded', () => {
+    const searchContainer = document.querySelector('.search-container');
+    const searchIcon = document.querySelector('.search-icon');
+    const searchInput = document.querySelector('.search-input');
+
+    searchIcon.addEventListener('click', (e) => {
+        if (window.innerWidth <= 900) {
+            e.preventDefault(); 
+            searchContainer.classList.toggle('active');
+            
+            if (searchContainer.classList.contains('active')) {
+                searchInput.focus();
+            }
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 900 && !searchContainer.contains(e.target)) {
+            searchContainer.classList.remove('active');
+        }
+    });
+});
+
 
 // ===============toast start==================
 function toggleWishlist(btn) {

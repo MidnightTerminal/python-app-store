@@ -78,7 +78,6 @@
 
 
     <main class="container">
-
         <div class="banner-container">
             <img src="{{ url_for('static', filename='assets/shop-header-1.jpeg') }}" alt="Shop Header">
         </div>
@@ -100,6 +99,25 @@
         <section class="products-grid" id="productsGrid">
         </section>
 
+        <div class="pagination-container">
+            <button id="prevBtn" class="pagination-btn" onclick="previousPage()">← Previous</button>
+    
+            <div class="page-numbers" id="pageNumbers">
+    
+            </div>
+    
+            <button id="nextBtn" class="pagination-btn" onclick="nextPage()">Next →</button>
+        </div>
+    
+        <div class="items-per-page">
+            <label for="itemsPerPage">Items per page:</label>
+            <select id="itemsPerPage" onchange="changeItemsPerPage()">
+                <option value="6">6</option>
+                <option value="12" selected>12</option>
+                <option value="24">24</option>
+            </select>
+        </div>
+        
         <section id="upcomingSection"
             style="display: none; margin-top: 60px; padding-top: 40px; border-top: 1px solid #c4c2c2;">
             <h2 class="shop-title" style="text-align: center;" data-aos="slide-down">Upcoming
@@ -111,25 +129,7 @@
             </div>
         </section>
     </main>
-
-    <div class="pagination-container">
-        <button id="prevBtn" class="pagination-btn" onclick="previousPage()">← Previous</button>
-
-        <div class="page-numbers" id="pageNumbers">
-
-        </div>
-
-        <button id="nextBtn" class="pagination-btn" onclick="nextPage()">Next →</button>
-    </div>
-
-    <div class="items-per-page">
-        <label for="itemsPerPage">Items per page:</label>
-        <select id="itemsPerPage" onchange="changeItemsPerPage()">
-            <option value="6">6</option>
-            <option value="12" selected>12</option>
-            <option value="24">24</option>
-        </select>
-    </div>
+    
     <div id="toastContainer" class="toast-container"></div>
 
 
