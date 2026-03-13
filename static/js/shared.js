@@ -120,7 +120,6 @@ function triggerCartAnimation() {
     cartWrapper.classList.add('cart-animating');
 }
 
-
 function flyToCart(productImageElement) {
     const cartIcon = document.querySelector('.cart-icon-wrapper');
 
@@ -194,8 +193,9 @@ function addToCart(btnElement) {
     }
 
     updateCart();
-    triggerCartAnimation();
-    flyToCart(imageElement);
+    // triggerCartAnimation();
+    // flyToCart(imageElement);
+    toggleCart();
 }
 
 function removeFromCart(title) {
