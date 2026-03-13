@@ -350,6 +350,9 @@ def checkout_api():
             cursor.close()
             connection.close()
 
+@app.route('/crash-test')
+def crash():
+    return 1 / 0  # This will cause a ZeroDivisionError
 
 if __name__ == '__main__':
     debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'

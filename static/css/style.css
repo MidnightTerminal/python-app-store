@@ -1340,57 +1340,63 @@
      transition: var(--transition);
  }
 
- .toast-container {
-     position: fixed;
-     bottom: 20px;
-     right: 20px;
-     z-index: 3000;
-     display: flex;
-     flex-direction: column;
-     gap: 10px;
- }
+.toast-container {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%); 
+    z-index: 3000;
+    display: flex;
+    flex-direction: column-reverse; 
+    gap: 10px;
+    align-items: center; 
+}
 
- .toast {
-     background: #bfdbfe;
-     color: black;
-     padding: 16px 20px;
-     border-radius: 8px;
-     box-shadow: var(--shadow-md);
-     border-left: 4px solid blue;
-     display: flex;
-     align-items: center;
-     gap: 12px;
-     animation: slideIn 0.5s ease forwards;
-     min-width: 300px;
- }
+.toast {
+    background: #ffffff;
+    color: #333;
+    padding: 12px 24px;
+    border-radius: 10px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    border-left: 4px solid #2563eb; 
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 320px;
+    animation: riseUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
 
- .toast.hide {
-     animation: slideOut 0.3s ease forwards;
- }
+.toast.hide {
+    animation: fadeDown 0.3s ease forwards;
+}
 
- @keyframes slideIn {
-     from {
-         transform: translateX(100%);
-         opacity: 0;
-     }
+@keyframes riseUp {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(40px);
+    }
+    70% {
+        transform: scale(1.05) translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
 
-     to {
-         transform: translateX(0);
-         opacity: 1;
-     }
- }
+@keyframes fadeDown {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+}
 
- @keyframes slideOut {
-     from {
-         transform: translateX(0);
-         opacity: 1;
-     }
 
-     to {
-         transform: translateX(100%);
-         opacity: 0;
-     }
- }
 
  .separator {
      width: 90%;
