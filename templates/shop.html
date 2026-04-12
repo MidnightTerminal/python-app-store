@@ -14,7 +14,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Lato:wght@300;400;700&display=swap"
         rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
+        gtag('config', 'G-XJ4Z7S4SWK');
+    </script>
 </head>
 
 <body>
@@ -101,14 +108,14 @@
 
         <div class="pagination-container">
             <button id="prevBtn" class="pagination-btn" onclick="previousPage()">← Previous</button>
-    
+
             <div class="page-numbers" id="pageNumbers">
-    
+
             </div>
-    
+
             <button id="nextBtn" class="pagination-btn" onclick="nextPage()">Next →</button>
         </div>
-    
+
         <div class="items-per-page">
             <label for="itemsPerPage">Items per page:</label>
             <select id="itemsPerPage" onchange="changeItemsPerPage()">
@@ -117,7 +124,7 @@
                 <option value="24">24</option>
             </select>
         </div>
-        
+
         <section id="upcomingSection"
             style="display: none; margin-top: 60px; padding-top: 40px; border-top: 1px solid #c4c2c2;">
             <h2 class="shop-title" style="text-align: center;" data-aos="slide-down">Upcoming
@@ -129,7 +136,7 @@
             </div>
         </section>
     </main>
-    
+
     <div id="toastContainer" class="toast-container"></div>
 
 
@@ -250,7 +257,8 @@
                     Footwear 📍Shop 24/7 at www.horizontalshop.com"
                 </div>
                 <div class="social-icons">
-                    <a href="https://www.facebook.com/share/17GevMkSPM/" class="social-link" aria-label="Facebook" target="_blank">
+                    <a href="https://www.facebook.com/share/17GevMkSPM/" class="social-link" aria-label="Facebook"
+                        target="_blank">
                         <i class="fa-brands fa-facebook-f" style="font-size: 20px;"></i>
                     </a>
                     <a href="#" class="social-link" aria-label="Instagram" target="_blank">
