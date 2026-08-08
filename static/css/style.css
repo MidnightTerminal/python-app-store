@@ -2003,7 +2003,7 @@
  .site-footer {
      background-color: var(--footer-bg);
      color: var(--footer-text);
-     padding: 80px 0 0 0;
+     padding: 20px 0 0 0;
      font-size: 14px;
      line-height: 1.6;
      margin-top: 20px;
@@ -2129,8 +2129,8 @@
  .footer-bottom {
      background-color: #000000;
      color: #777;
-     padding: 25px 0;
-     margin-top: 60px;
+     padding: 20px 0;
+     margin-top: 20px;
      text-align: center;
      font-size: 13px;
      border-top: 1px solid var(--footer-border);
